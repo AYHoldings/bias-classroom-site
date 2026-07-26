@@ -6,7 +6,7 @@
     <title>Chord Classroom | bias</title>
     <meta name="description" content="子どもと一緒にコードを聞いて学べる、biasの小さな音楽教室。">
     <link rel="icon" href="assets/images/mark.png">
-    <link rel="stylesheet" href="assets/styles.css?v=sample-master">
+    <link rel="stylesheet" href="assets/styles.css?v=tone-quest">
   </head>
   <body class="chord-page">
     <header class="site-header">
@@ -109,6 +109,25 @@
         <div class="quiz-options" id="quizOptions"></div>
         <p id="quizResult"></p>
       </section>
+
+      <section class="tone-quest" id="toneQuest" hidden>
+        <div class="tone-quest-art" aria-hidden="true">
+          <span class="tone-wave tone-wave-a"></span>
+          <span class="tone-wave tone-wave-b"></span>
+          <span class="tone-dot tone-dot-a"></span>
+          <span class="tone-dot tone-dot-b"></span>
+          <span class="tone-slider tone-slider-a"></span>
+          <span class="tone-slider tone-slider-b"></span>
+        </div>
+        <div>
+          <p class="eyebrow">Next Room</p>
+          <h2>音色編をのぞく</h2>
+          <p>音は高さだけじゃなく、形でも変わる。波、明るさ、ふくらみを触って、マイ音色の続きへ。</p>
+          <div class="inline-actions">
+            <a href="https://learningsynths.ableton.com/" target="_blank" rel="noreferrer">Ableton Learning Synths</a>
+          </div>
+        </div>
+      </section>
     </main>
 
     <footer class="footer">
@@ -187,6 +206,7 @@
       const quizPanel = document.querySelector("#quizPanel");
       const quizOptions = document.querySelector("#quizOptions");
       const quizResult = document.querySelector("#quizResult");
+      const toneQuest = document.querySelector("#toneQuest");
       const voiceButton = document.querySelector("#voiceButton");
       const voiceStatus = document.querySelector("#voiceStatus");
       const recordSampleButton = document.querySelector("#recordSample");
@@ -204,6 +224,7 @@
       let sampleChunks = [];
       let sampleStopTimer = null;
       let pendingSampleStop = false;
+      const toneQuestDelay = 120000;
 
       function getAudioContext() {
         audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
@@ -629,6 +650,13 @@
         recordSampleButton.addEventListener("click", (event) => event.preventDefault());
       }
 
+      function revealToneQuest() {
+        toneQuest.hidden = false;
+        window.requestAnimationFrame(() => {
+          toneQuest.classList.add("is-visible");
+        });
+      }
+
       quizOptions.addEventListener("click", (event) => {
         const button = event.target.closest("[data-answer]");
         if (!button) return;
@@ -667,6 +695,7 @@
       buildControls();
       setupVoiceInput();
       render();
+      window.setTimeout(revealToneQuest, toneQuestDelay);
     </script>
   </body>
 </html>
