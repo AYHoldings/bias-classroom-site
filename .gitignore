@@ -3,5 +3,6 @@ tmp/
 output/
 tools/
 Chordist/
+Delayist/
 *.pdf
 *.docx
