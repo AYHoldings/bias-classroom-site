@@ -6,16 +6,16 @@
     <title>Chord Classroom | bias</title>
     <meta name="description" content="子どもと一緒にコードを聞いて学べる、biasの小さな音楽教室。">
     <link rel="icon" href="assets/images/mark.png">
-    <link rel="stylesheet" href="assets/styles.css?v=science-staff">
+    <link rel="stylesheet" href="assets/styles.css?v=record-button">
   </head>
   <body class="chord-page">
     <header class="site-header">
-      <a class="brand" href="index.html#top" aria-label="bias home">
+      <a class="brand" href="index.html" aria-label="bias entrance">
         <img src="assets/images/logo-bias.png" alt="">
         <span class="brand-word">bias</span>
       </a>
       <nav class="nav" aria-label="Main navigation">
-        <a href="index.html#top">BIAS</a>
+        <a href="label.html">BIAS</a>
         <a href="portfolio.html">PORTFOLIO</a>
         <a href="chord-classroom.html">CLASSROOM</a>
         <a href="chord-settings.html">SETTINGS</a>
@@ -63,7 +63,14 @@
             <button class="action-button" id="playArp" type="button">階段</button>
             <button class="action-button" id="quizButton" type="button">クイズ</button>
             <button class="action-button voice-button" id="voiceButton" type="button">声</button>
-            <button class="action-button sample-button" id="recordSample" type="button">録音</button>
+            <button class="action-button sample-button record-button" id="recordSample" type="button" aria-label="5秒録音して鍵盤の音にする">
+              <span class="record-button-icon" aria-hidden="true">
+                <span class="record-dot"></span>
+                <span class="mic-shape"></span>
+              </span>
+              <span>録音</span>
+              <small>5秒</small>
+            </button>
             <button class="action-button sample-button" id="clearSample" type="button">内蔵音</button>
           </div>
         </div>
@@ -91,7 +98,7 @@
     </main>
 
     <footer class="footer">
-      <a href="index.html#top">© bias.</a>
+      <a href="index.html">© bias.</a>
     </footer>
 
     <script>
