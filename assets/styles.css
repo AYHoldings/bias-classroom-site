@@ -1089,7 +1089,8 @@ time {
 }
 
 .keyboard-section,
-.quiz-panel {
+.quiz-panel,
+.tone-quest {
   padding: clamp(48px, 8vw, 88px) 0;
 }
 
@@ -1143,6 +1144,127 @@ time {
 .quiz-options {
   grid-template-columns: repeat(2, minmax(0, 180px));
   margin-top: 20px;
+}
+
+.tone-quest {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.72fr) minmax(0, 1fr);
+  gap: clamp(22px, 5vw, 56px);
+  align-items: center;
+  border-top: 1px solid var(--line);
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 480ms ease, transform 480ms ease;
+}
+
+.tone-quest[hidden] {
+  display: none;
+}
+
+.tone-quest.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.tone-quest p:not(.eyebrow) {
+  max-width: 560px;
+  color: #4d4b46;
+  line-height: 1.8;
+}
+
+.tone-quest-art {
+  position: relative;
+  min-height: 230px;
+  overflow: hidden;
+  border: 1px solid rgba(22, 22, 22, 0.12);
+  border-radius: 8px;
+  background:
+    linear-gradient(rgba(35, 107, 100, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(35, 107, 100, 0.1) 1px, transparent 1px),
+    radial-gradient(circle at 76% 22%, rgba(244, 206, 99, 0.5), transparent 24%),
+    linear-gradient(135deg, rgba(220, 236, 243, 0.74), rgba(255, 245, 223, 0.92));
+  background-size: 22px 22px, 22px 22px, auto, auto;
+}
+
+.tone-wave,
+.tone-dot,
+.tone-slider {
+  position: absolute;
+}
+
+.tone-wave {
+  left: 12%;
+  right: 12%;
+  height: 34px;
+  border: solid rgba(35, 107, 100, 0.76);
+  border-width: 3px 0 0;
+  border-radius: 50%;
+}
+
+.tone-wave-a {
+  top: 28%;
+}
+
+.tone-wave-b {
+  top: 45%;
+  border-color: rgba(199, 53, 46, 0.62);
+  transform: scaleX(0.78);
+}
+
+.tone-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 7px rgba(199, 53, 46, 0.12);
+}
+
+.tone-dot-a {
+  left: 28%;
+  top: 33%;
+}
+
+.tone-dot-b {
+  right: 24%;
+  top: 50%;
+  background: var(--lesson);
+  box-shadow: 0 0 0 7px rgba(35, 107, 100, 0.12);
+}
+
+.tone-slider {
+  bottom: 20%;
+  width: 32%;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(22, 22, 22, 0.16);
+}
+
+.tone-slider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 22px;
+  height: 22px;
+  border: 2px solid rgba(22, 22, 22, 0.2);
+  border-radius: 50%;
+  background: #fff;
+  transform: translateY(-50%);
+}
+
+.tone-slider-a {
+  left: 12%;
+}
+
+.tone-slider-a::after {
+  left: 58%;
+}
+
+.tone-slider-b {
+  right: 12%;
+}
+
+.tone-slider-b::after {
+  left: 28%;
 }
 
 .settings-shell {
@@ -2028,6 +2150,18 @@ time {
     max-width: 362px;
     margin: 0 auto;
     padding: 34px 0 48px;
+  }
+
+  .tone-quest {
+    grid-template-columns: 1fr;
+    width: min(100%, 362px);
+    max-width: 362px;
+    margin: 0 auto;
+    padding: 42px 0 54px;
+  }
+
+  .tone-quest-art {
+    min-height: 190px;
   }
 
   .keyboard-heading {
