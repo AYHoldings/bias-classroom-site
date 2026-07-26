@@ -6,7 +6,7 @@
     <title>Chord Classroom | bias</title>
     <meta name="description" content="子どもと一緒にコードを聞いて学べる、biasの小さな音楽教室。">
     <link rel="icon" href="assets/images/mark.png">
-    <link rel="stylesheet" href="assets/styles.css?v=sound-switch">
+    <link rel="stylesheet" href="assets/styles.css?v=sample-master">
   </head>
   <body class="chord-page">
     <header class="site-header">
@@ -84,7 +84,7 @@
           </button>
           <button class="sound-source-button" id="sampleSound" type="button" aria-pressed="false">
             <span class="sound-source-icon sample-icon" aria-hidden="true"></span>
-            <strong>録音音</strong>
+            <strong>マイ音色</strong>
             <small>録った音</small>
           </button>
         </div>
@@ -176,6 +176,7 @@
       let selectedType = chordTypes[0];
       let audioContext;
       let quizAnswer = null;
+      let outputChain = null;
 
       const rootGrid = document.querySelector("#rootGrid");
       const typeGrid = document.querySelector("#typeGrid");
@@ -209,6 +210,60 @@
         return audioContext;
       }
 
+      function getOutputChain(context) {
+        if (outputChain) return outputChain;
+
+        const input = context.createGain();
+        const compressor = context.createDynamicsCompressor();
+        const limiter = context.createDynamicsCompressor();
+
+        input.gain.value = 0.92;
+        compressor.threshold.value = -18;
+        compressor.knee.value = 18;
+        compressor.ratio.value = 3.5;
+        compressor.attack.value = 0.012;
+        compressor.release.value = 0.18;
+
+        limiter.threshold.value = -0.8;
+        limiter.knee.value = 0;
+        limiter.ratio.value = 20;
+        limiter.attack.value = 0.002;
+        limiter.release.value = 0.08;
+
+        input.connect(compressor);
+        compressor.connect(limiter);
+        limiter.connect(context.destination);
+        outputChain = { input, compressor, limiter };
+        return outputChain;
+      }
+
+      function normalizeSampleBuffer(buffer) {
+        let peak = 0;
+        for (let channel = 0; channel < buffer.numberOfChannels; channel += 1) {
+          const data = buffer.getChannelData(channel);
+          for (let index = 0; index < data.length; index += 1) {
+            peak = Math.max(peak, Math.abs(data[index]));
+          }
+        }
+
+        if (peak < 0.001) return buffer;
+
+        const context = getAudioContext();
+        const normalized = context.createBuffer(buffer.numberOfChannels, buffer.length, buffer.sampleRate);
+        const targetPeak = 0.94;
+        const scale = Math.min(targetPeak / peak, 4);
+
+        for (let channel = 0; channel < buffer.numberOfChannels; channel += 1) {
+          const source = buffer.getChannelData(channel);
+          const target = normalized.getChannelData(channel);
+          for (let index = 0; index < source.length; index += 1) {
+            target[index] = Math.max(-targetPeak, Math.min(targetPeak, source[index] * scale));
+          }
+        }
+
+        return normalized;
+      }
+
       function midiToFrequency(midi) {
         return 440 * Math.pow(2, (midi - 69) / 12);
       }
@@ -227,7 +282,7 @@
         gain.gain.setValueAtTime(0.0001, start);
         gain.gain.exponentialRampToValueAtTime(0.14, start + 0.025);
         gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
-        gain.connect(context.destination);
+        gain.connect(getOutputChain(context).input);
 
         if (soundSource === "sample" && sampleBuffer) {
           const source = context.createBufferSource();
@@ -327,7 +382,7 @@
         }
 
         soundSource = nextSource;
-        sampleStatus.textContent = soundSource === "sample" ? "音色: 録音音" : "音色: シンセ音";
+        sampleStatus.textContent = soundSource === "sample" ? "音色: マイ音色" : "音色: シンセ音";
         updateSoundSourceButtons();
         playChord();
       }
@@ -515,9 +570,10 @@
 
               const blob = new Blob(sampleChunks, { type: sampleRecorder.mimeType || "audio/webm" });
               const arrayBuffer = await blob.arrayBuffer();
-              sampleBuffer = await getAudioContext().decodeAudioData(arrayBuffer);
+              const decodedBuffer = await getAudioContext().decodeAudioData(arrayBuffer);
+              sampleBuffer = normalizeSampleBuffer(decodedBuffer);
               soundSource = "sample";
-              sampleStatus.textContent = "音色: 録音音に切り替えました";
+              sampleStatus.textContent = "音色: マイ音色に切り替えました";
               updateSoundSourceButtons();
               playChord();
             } catch {
