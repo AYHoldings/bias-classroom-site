@@ -872,6 +872,8 @@ time {
   align-items: center;
   gap: 10px;
   text-align: left;
+  transition: border-color 140ms ease, background 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+  touch-action: none;
 }
 
 .record-button-icon {
@@ -933,11 +935,21 @@ time {
   font-weight: 900;
 }
 
-.record-button.is-active .record-button-icon {
-  background: rgba(199, 53, 46, 0.18);
+.record-button.is-recording {
+  border-color: rgba(199, 53, 46, 0.78);
+  background:
+    radial-gradient(circle at 16% 50%, rgba(199, 53, 46, 0.24), transparent 34%),
+    #fff5df;
+  box-shadow: 0 0 0 4px rgba(199, 53, 46, 0.12), 0 18px 44px rgba(199, 53, 46, 0.18);
+  transform: translateY(1px);
 }
 
-.record-button.is-active .record-dot {
+.record-button.is-recording .record-button-icon {
+  background: rgba(199, 53, 46, 0.2);
+  box-shadow: 0 0 0 8px rgba(199, 53, 46, 0.1);
+}
+
+.record-button.is-recording .record-dot {
   animation: recordPulse 760ms ease-in-out infinite;
 }
 
