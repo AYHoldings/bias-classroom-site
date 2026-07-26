@@ -323,6 +323,61 @@ time {
   aspect-ratio: 1;
 }
 
+.classroom-art {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid rgba(22, 22, 22, 0.12);
+  border-radius: 8px;
+  padding: 18px;
+  background:
+    linear-gradient(135deg, rgba(220, 236, 243, 0.82), rgba(255, 245, 223, 0.9)),
+    #f7f7f4;
+}
+
+.classroom-art::before,
+.classroom-art::after {
+  content: "";
+  position: absolute;
+  inset: auto 14% 16% 14%;
+  height: 2px;
+  background: rgba(22, 22, 22, 0.16);
+}
+
+.classroom-art::after {
+  inset: 18% 18% auto 18%;
+  background: rgba(35, 107, 100, 0.2);
+}
+
+.classroom-art span {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  align-self: end;
+  aspect-ratio: 1;
+  border: 1px solid rgba(22, 22, 22, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--lesson-dark);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(26px, 4vw, 48px);
+}
+
+.classroom-art span:nth-child(2) {
+  align-self: center;
+  color: var(--accent);
+}
+
+.classroom-art span:nth-child(3) {
+  align-self: start;
+  color: var(--ink);
+}
+
 .inline-actions {
   display: flex;
   flex-wrap: wrap;
