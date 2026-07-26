@@ -6,7 +6,7 @@
     <title>Chord Classroom | bias</title>
     <meta name="description" content="子どもと一緒にコードを聞いて学べる、biasの小さな音楽教室。">
     <link rel="icon" href="assets/images/mark.png">
-    <link rel="stylesheet" href="assets/styles.css?v=hold-recording">
+    <link rel="stylesheet" href="assets/styles.css?v=sound-switch">
   </head>
   <body class="chord-page">
     <header class="site-header">
@@ -71,12 +71,26 @@
               <span>押して録る</span>
               <small>max5秒</small>
             </button>
-            <button class="action-button sample-button" id="clearSample" type="button">内蔵音</button>
           </div>
         </div>
       </section>
+      <section class="sound-source-panel" aria-label="Sound source">
+        <p>音色</p>
+        <div class="sound-source-switch">
+          <button class="sound-source-button is-active" id="synthSound" type="button" aria-pressed="true">
+            <span class="sound-source-icon synth-icon" aria-hidden="true"></span>
+            <strong>シンセ音</strong>
+            <small>元の音</small>
+          </button>
+          <button class="sound-source-button" id="sampleSound" type="button" aria-pressed="false">
+            <span class="sound-source-icon sample-icon" aria-hidden="true"></span>
+            <strong>録音音</strong>
+            <small>録った音</small>
+          </button>
+        </div>
+      </section>
       <p class="voice-status" id="voiceStatus" aria-live="polite">声で操作: オフ</p>
-      <p class="voice-status sample-status" id="sampleStatus" aria-live="polite">サンプル: 内蔵音</p>
+      <p class="voice-status sample-status" id="sampleStatus" aria-live="polite">音色: シンセ音</p>
 
       <section class="keyboard-section" aria-label="Piano keyboard">
         <div class="keyboard-heading">
@@ -175,12 +189,14 @@
       const voiceButton = document.querySelector("#voiceButton");
       const voiceStatus = document.querySelector("#voiceStatus");
       const recordSampleButton = document.querySelector("#recordSample");
-      const clearSampleButton = document.querySelector("#clearSample");
+      const synthSoundButton = document.querySelector("#synthSound");
+      const sampleSoundButton = document.querySelector("#sampleSound");
       const sampleStatus = document.querySelector("#sampleStatus");
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       let recognition = null;
       let voiceEnabled = false;
       let sampleBuffer = null;
+      let soundSource = "synth";
       let sampleRecorder = null;
       let isRecordingSample = false;
       let sampleStream = null;
@@ -213,7 +229,7 @@
         gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
         gain.connect(context.destination);
 
-        if (sampleBuffer) {
+        if (soundSource === "sample" && sampleBuffer) {
           const source = context.createBufferSource();
           source.buffer = sampleBuffer;
           source.playbackRate.setValueAtTime(Math.pow(2, (midi - 60) / 12), start);
@@ -289,6 +305,31 @@
         document.querySelectorAll("[data-key]").forEach((button) => {
           button.classList.toggle("is-active", button.dataset.key === selectedRoot.name);
         });
+        updateSoundSourceButtons();
+      }
+
+      function updateSoundSourceButtons() {
+        const sampleReady = Boolean(sampleBuffer);
+        synthSoundButton.classList.toggle("is-active", soundSource === "synth");
+        sampleSoundButton.classList.toggle("is-active", soundSource === "sample");
+        synthSoundButton.setAttribute("aria-pressed", String(soundSource === "synth"));
+        sampleSoundButton.setAttribute("aria-pressed", String(soundSource === "sample"));
+        sampleSoundButton.classList.toggle("is-disabled", !sampleReady);
+        sampleSoundButton.querySelector("small").textContent = sampleReady ? "録った音" : "未録音";
+      }
+
+      function setSoundSource(nextSource) {
+        if (nextSource === "sample" && !sampleBuffer) {
+          soundSource = "synth";
+          sampleStatus.textContent = "音色: 先に録音してね";
+          updateSoundSourceButtons();
+          return;
+        }
+
+        soundSource = nextSource;
+        sampleStatus.textContent = soundSource === "sample" ? "音色: 録音音" : "音色: シンセ音";
+        updateSoundSourceButtons();
+        playChord();
       }
 
       function buildControls() {
@@ -475,8 +516,9 @@
               const blob = new Blob(sampleChunks, { type: sampleRecorder.mimeType || "audio/webm" });
               const arrayBuffer = await blob.arrayBuffer();
               sampleBuffer = await getAudioContext().decodeAudioData(arrayBuffer);
-              sampleStatus.textContent = "サンプル: 録音トラックを上書きしました";
-              clearSampleButton.classList.add("is-active");
+              soundSource = "sample";
+              sampleStatus.textContent = "音色: 録音音に切り替えました";
+              updateSoundSourceButtons();
               playChord();
             } catch {
               sampleStatus.textContent = "サンプル: 録音の読み込みに失敗";
@@ -515,9 +557,7 @@
           stopSampleRecording();
         });
         recordSampleButton.addEventListener("pointercancel", stopSampleRecording);
-        recordSampleButton.addEventListener("lostpointercapture", () => {
-          if (isRecordingSample) stopSampleRecording();
-        });
+        window.addEventListener("pointerup", stopSampleRecording);
         recordSampleButton.addEventListener("keydown", (event) => {
           if ((event.key === " " || event.key === "Enter") && !event.repeat) {
             event.preventDefault();
@@ -547,13 +587,8 @@
       document.querySelector("#playArpTop").addEventListener("click", playArp);
       document.querySelector("#quizButton").addEventListener("click", startQuiz);
       setupSampleRecorderButton();
-      clearSampleButton.addEventListener("click", () => {
-        if (isRecordingSample) stopSampleRecording();
-        sampleBuffer = null;
-        clearSampleButton.classList.remove("is-active");
-        sampleStatus.textContent = "サンプル: 内蔵音";
-        playChord();
-      });
+      synthSoundButton.addEventListener("click", () => setSoundSource("synth"));
+      sampleSoundButton.addEventListener("click", () => setSoundSource("sample"));
       voiceButton.addEventListener("click", () => {
         if (!recognition) return;
         voiceEnabled = !voiceEnabled;
