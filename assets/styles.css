@@ -1273,6 +1273,230 @@ time {
   padding: clamp(46px, 8vw, 92px) 0 72px;
 }
 
+.tone-room {
+  width: min(1120px, calc(100% - 40px));
+  margin: 0 auto;
+}
+
+.tone-lab {
+  display: grid;
+  grid-template-columns: minmax(0, 0.86fr) minmax(300px, 1.14fr);
+  gap: clamp(30px, 6vw, 72px);
+  align-items: center;
+  min-height: calc(100vh - 89px);
+  padding: clamp(46px, 8vw, 92px) 0;
+}
+
+.tone-copy h1 {
+  max-width: 760px;
+}
+
+.synth-scope {
+  display: grid;
+  gap: 22px;
+  border: 1px solid rgba(22, 22, 22, 0.12);
+  border-radius: 8px;
+  padding: clamp(20px, 3vw, 32px);
+  background: rgba(255, 255, 255, 0.68);
+  box-shadow: 0 22px 70px rgba(22, 22, 22, 0.07);
+}
+
+.scope-screen {
+  --filter-position: 0.29;
+  --filter-left: 38%;
+  position: relative;
+  min-height: 220px;
+  overflow: hidden;
+  border: 1px solid rgba(22, 22, 22, 0.12);
+  border-radius: 8px;
+  background:
+    linear-gradient(rgba(35, 107, 100, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(35, 107, 100, 0.1) 1px, transparent 1px),
+    radial-gradient(circle at var(--filter-left) 26%, rgba(244, 206, 99, 0.58), transparent 22%),
+    linear-gradient(135deg, rgba(220, 236, 243, 0.74), rgba(255, 245, 223, 0.92));
+  background-size: 22px 22px, 22px 22px, auto, auto;
+}
+
+.scope-line {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  height: 48px;
+  border-top: 4px solid var(--lesson);
+  border-radius: 50%;
+}
+
+.scope-line-a {
+  top: 36%;
+}
+
+.scope-line-b {
+  top: 50%;
+  border-color: rgba(199, 53, 46, 0.6);
+  transform: scaleX(0.76);
+}
+
+.scope-screen[data-wave="square"] .scope-line {
+  height: 20px;
+  border-radius: 0;
+  border-width: 6px 0 0;
+}
+
+.scope-screen[data-wave="sawtooth"] .scope-line {
+  height: 0;
+  border-radius: 0;
+  transform: skewX(-24deg);
+}
+
+.scope-screen[data-wave="triangle"] .scope-line {
+  border-radius: 4px;
+  transform: rotate(-2deg);
+}
+
+.scope-pulse {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 78px;
+  height: 78px;
+  border: 1px solid rgba(22, 22, 22, 0.12);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.74);
+  color: var(--accent);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 34px;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.72);
+}
+
+.scope-pulse.is-playing {
+  animation: scopePop 520ms ease;
+}
+
+@keyframes scopePop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.72);
+  }
+
+  30% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.36);
+  }
+}
+
+.tone-control-band {
+  display: grid;
+  grid-template-columns: minmax(260px, 1.2fr) repeat(2, minmax(220px, 0.9fr));
+  gap: 18px;
+  padding: 18px;
+  border: 1px solid rgba(217, 215, 207, 0.86);
+  border-radius: 8px;
+  background: rgba(245, 243, 234, 0.84);
+  backdrop-filter: blur(18px);
+}
+
+.tone-control-group {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  min-width: 0;
+}
+
+.tone-control-group h2 {
+  font-size: 28px;
+}
+
+.wave-grid,
+.tone-pads {
+  display: grid;
+  gap: 10px;
+}
+
+.wave-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wave-grid button,
+.tone-pads button {
+  min-width: 0;
+  border: 1px solid rgba(22, 22, 22, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.wave-grid button {
+  display: grid;
+  gap: 3px;
+  min-height: 70px;
+  padding: 14px;
+  text-align: left;
+}
+
+.wave-grid small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.wave-grid button.is-active,
+.tone-pads button:active {
+  border-color: rgba(35, 107, 100, 0.58);
+  background: #dcecf3;
+}
+
+.tone-slider-row {
+  display: grid;
+  gap: 9px;
+  color: #4d4b46;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.tone-slider-row input {
+  width: 100%;
+  accent-color: var(--lesson);
+}
+
+.tone-pad-section,
+.tone-route {
+  padding: clamp(48px, 8vw, 88px) 0;
+}
+
+.tone-pads {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.tone-pads button {
+  display: grid;
+  place-items: center;
+  min-height: 150px;
+  padding: 16px;
+}
+
+.tone-pads span {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(30px, 5vw, 58px);
+}
+
+.tone-route {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  border-top: 1px solid var(--line);
+}
+
 .settings-hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
@@ -1715,8 +1939,10 @@ time {
   .split,
   .portfolio-hero,
   .chord-stage,
+  .tone-lab,
   .entrance-hero,
   .control-band,
+  .tone-control-band,
   .settings-hero,
   .settings-grid,
   .output-list {
@@ -1725,6 +1951,7 @@ time {
 
   .hero,
   .chord-stage,
+  .tone-lab,
   .entrance-hero {
     min-height: auto;
   }
@@ -1757,6 +1984,11 @@ time {
   }
 
   .keyboard-heading {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .tone-route {
     align-items: start;
     flex-direction: column;
   }
@@ -1797,7 +2029,12 @@ time {
     width: min(100% - 36px, 960px);
   }
 
-  .chord-stage {
+  .tone-room {
+    width: min(100% - 36px, 960px);
+  }
+
+  .chord-stage,
+  .tone-lab {
     grid-template-columns: minmax(220px, 0.82fr) minmax(330px, 1.18fr);
     gap: clamp(24px, 5vw, 52px);
     min-height: auto;
@@ -1839,6 +2076,15 @@ time {
     padding: 18px;
     background: rgba(245, 243, 234, 0.94);
     backdrop-filter: blur(18px);
+  }
+
+  .tone-control-band {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .tone-pads button {
+    min-height: 128px;
   }
 
   .control-group {
@@ -1939,6 +2185,11 @@ time {
     overflow: hidden;
   }
 
+  .tone-room {
+    width: calc(100vw - 28px);
+    max-width: none;
+  }
+
   .chord-page .site-header {
     min-height: 72px;
     padding-bottom: 12px;
@@ -1957,6 +2208,39 @@ time {
     width: 100%;
     max-width: none;
     padding: 42px 14px 56px;
+  }
+
+  .tone-lab {
+    gap: 22px;
+    padding: 34px 0 24px;
+  }
+
+  .tone-control-band {
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .scope-screen {
+    min-height: 190px;
+  }
+
+  .wave-grid,
+  .tone-pads {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .wave-grid button {
+    min-height: 68px;
+    padding: 12px;
+  }
+
+  .tone-pad-section,
+  .tone-route {
+    padding: 34px 0 48px;
+  }
+
+  .tone-pads button {
+    min-height: 104px;
   }
 
   h1 {
