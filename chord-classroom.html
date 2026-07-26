@@ -6,7 +6,7 @@
     <title>Chord Classroom | bias</title>
     <meta name="description" content="子どもと一緒にコードを聞いて学べる、biasの小さな音楽教室。">
     <link rel="icon" href="assets/images/mark.png">
-    <link rel="stylesheet" href="assets/styles.css?v=record-button">
+    <link rel="stylesheet" href="assets/styles.css?v=hold-recording">
   </head>
   <body class="chord-page">
     <header class="site-header">
@@ -63,13 +63,13 @@
             <button class="action-button" id="playArp" type="button">階段</button>
             <button class="action-button" id="quizButton" type="button">クイズ</button>
             <button class="action-button voice-button" id="voiceButton" type="button">声</button>
-            <button class="action-button sample-button record-button" id="recordSample" type="button" aria-label="5秒録音して鍵盤の音にする">
+            <button class="action-button sample-button record-button" id="recordSample" type="button" aria-label="押している間だけ録音して鍵盤の音にする。最大5秒">
               <span class="record-button-icon" aria-hidden="true">
                 <span class="record-dot"></span>
                 <span class="mic-shape"></span>
               </span>
-              <span>録音</span>
-              <small>5秒</small>
+              <span>押して録る</span>
+              <small>max5秒</small>
             </button>
             <button class="action-button sample-button" id="clearSample" type="button">内蔵音</button>
           </div>
@@ -183,6 +183,10 @@
       let sampleBuffer = null;
       let sampleRecorder = null;
       let isRecordingSample = false;
+      let sampleStream = null;
+      let sampleChunks = [];
+      let sampleStopTimer = null;
+      let pendingSampleStop = false;
 
       function getAudioContext() {
         audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
@@ -409,13 +413,32 @@
         };
       }
 
-      async function recordSample() {
+      function resetRecordButton() {
+        recordSampleButton.classList.remove("is-active", "is-recording");
+        recordSampleButton.setAttribute("aria-pressed", "false");
+      }
+
+      function stopSampleRecording() {
+        pendingSampleStop = true;
+        if (sampleRecorder && sampleRecorder.state === "recording") {
+          sampleRecorder.stop();
+        } else if (!isRecordingSample) {
+          resetRecordButton();
+        }
+      }
+
+      async function startSampleRecording() {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
           sampleStatus.textContent = "サンプル: このブラウザでは録音未対応";
           return;
         }
 
         if (isRecordingSample) return;
+        pendingSampleStop = false;
+        isRecordingSample = true;
+        recordSampleButton.classList.add("is-active", "is-recording");
+        recordSampleButton.setAttribute("aria-pressed", "true");
+        sampleStatus.textContent = "サンプル: マイク接続確認中";
 
         try {
           if (voiceEnabled && recognition) {
@@ -426,48 +449,88 @@
           }
 
           getAudioContext();
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          const chunks = [];
-          sampleRecorder = new MediaRecorder(stream);
-          isRecordingSample = true;
-          recordSampleButton.classList.add("is-active");
-          recordSampleButton.disabled = true;
-          sampleStatus.textContent = "サンプル: マイク接続OK / 5秒録音中";
+          sampleStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          sampleChunks = [];
+          sampleRecorder = new MediaRecorder(sampleStream);
+          sampleStatus.textContent = "サンプル: 押している間だけ録音中";
 
           sampleRecorder.ondataavailable = (event) => {
-            if (event.data.size > 0) chunks.push(event.data);
+            if (event.data.size > 0) sampleChunks.push(event.data);
           };
 
           sampleRecorder.onstop = async () => {
-            stream.getTracks().forEach((track) => track.stop());
+            window.clearTimeout(sampleStopTimer);
+            sampleStopTimer = null;
+            if (sampleStream) {
+              sampleStream.getTracks().forEach((track) => track.stop());
+              sampleStream = null;
+            }
+
             try {
-              const blob = new Blob(chunks, { type: sampleRecorder.mimeType || "audio/webm" });
+              if (!sampleChunks.length) {
+                sampleStatus.textContent = "サンプル: もう少し長く押して録音";
+                return;
+              }
+
+              const blob = new Blob(sampleChunks, { type: sampleRecorder.mimeType || "audio/webm" });
               const arrayBuffer = await blob.arrayBuffer();
               sampleBuffer = await getAudioContext().decodeAudioData(arrayBuffer);
-              sampleStatus.textContent = "サンプル: 録音した音で演奏中";
+              sampleStatus.textContent = "サンプル: 録音トラックを上書きしました";
               clearSampleButton.classList.add("is-active");
               playChord();
             } catch {
               sampleStatus.textContent = "サンプル: 録音の読み込みに失敗";
             } finally {
+              sampleChunks = [];
+              sampleRecorder = null;
               isRecordingSample = false;
-              recordSampleButton.classList.remove("is-active");
-              recordSampleButton.disabled = false;
+              resetRecordButton();
             }
           };
 
-          sampleRecorder.start();
-          window.setTimeout(() => {
+          sampleRecorder.start(100);
+          sampleStopTimer = window.setTimeout(() => {
             if (sampleRecorder && sampleRecorder.state === "recording") {
               sampleRecorder.stop();
             }
           }, 5000);
+
+          if (pendingSampleStop) stopSampleRecording();
         } catch {
           isRecordingSample = false;
-          recordSampleButton.classList.remove("is-active");
-          recordSampleButton.disabled = false;
+          pendingSampleStop = false;
+          resetRecordButton();
           sampleStatus.textContent = "サンプル: マイクを許可してもう一度";
         }
+      }
+
+      function setupSampleRecorderButton() {
+        recordSampleButton.addEventListener("pointerdown", (event) => {
+          event.preventDefault();
+          recordSampleButton.setPointerCapture?.(event.pointerId);
+          startSampleRecording();
+        });
+        recordSampleButton.addEventListener("pointerup", (event) => {
+          event.preventDefault();
+          stopSampleRecording();
+        });
+        recordSampleButton.addEventListener("pointercancel", stopSampleRecording);
+        recordSampleButton.addEventListener("lostpointercapture", () => {
+          if (isRecordingSample) stopSampleRecording();
+        });
+        recordSampleButton.addEventListener("keydown", (event) => {
+          if ((event.key === " " || event.key === "Enter") && !event.repeat) {
+            event.preventDefault();
+            startSampleRecording();
+          }
+        });
+        recordSampleButton.addEventListener("keyup", (event) => {
+          if (event.key === " " || event.key === "Enter") {
+            event.preventDefault();
+            stopSampleRecording();
+          }
+        });
+        recordSampleButton.addEventListener("click", (event) => event.preventDefault());
       }
 
       quizOptions.addEventListener("click", (event) => {
@@ -483,8 +546,9 @@
       document.querySelector("#playChordTop").addEventListener("click", playChord);
       document.querySelector("#playArpTop").addEventListener("click", playArp);
       document.querySelector("#quizButton").addEventListener("click", startQuiz);
-      recordSampleButton.addEventListener("click", recordSample);
+      setupSampleRecorderButton();
       clearSampleButton.addEventListener("click", () => {
+        if (isRecordingSample) stopSampleRecording();
         sampleBuffer = null;
         clearSampleButton.classList.remove("is-active");
         sampleStatus.textContent = "サンプル: 内蔵音";
