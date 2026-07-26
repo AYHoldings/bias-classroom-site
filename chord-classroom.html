@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chord Classroom | bias</title>
+    <meta name="description" content="子どもと一緒にコードを聞いて学べる、biasの小さな音楽教室。">
+    <link rel="icon" href="assets/images/mark.png">
+    <link rel="stylesheet" href="assets/styles.css">
+  </head>
+  <body class="chord-page">
+    <header class="site-header">
+      <a class="brand" href="index.html#top" aria-label="bias home">
+        <img src="assets/images/logo-bias.png" alt="">
+        <span class="brand-word">bias</span>
+      </a>
+      <nav class="nav" aria-label="Main navigation">
+        <a href="index.html#top">BIAS</a>
+        <a href="portfolio.html">PORTFOLIO</a>
+        <a href="chord-classroom.html">CLASSROOM</a>
+        <a href="chord-settings.html">SETTINGS</a>
+      </nav>
+    </header>
+
+    <main class="chord-app" id="top">
+      <section class="chord-stage">
+        <div class="ghost-layer" id="ghostLayer" aria-hidden="true"></div>
+        <div class="chord-intro">
+          <p class="eyebrow">Chord Classroom</p>
+          <h1>音の積み木で遊ぼう</h1>
+          <p class="lead">1つの音を選ぶと、明るいコード、暗いコード、ふしぎなコードが鳴ります。</p>
+        </div>
+
+        <div class="lesson-panel" aria-live="polite">
+          <div>
+            <span class="panel-label">いまのコード</span>
+            <strong id="chordName">C Major</strong>
+          </div>
+          <div class="note-row" id="noteRow"></div>
+          <p id="lessonText">Majorは明るく聞こえやすいコード。C、E、Gの3つの音でできています。</p>
+          <div class="lesson-actions">
+            <button class="action-button" id="playChordTop" type="button">コード</button>
+            <button class="action-button" id="playArpTop" type="button">1音ずつ</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="control-band" aria-label="Chord controls">
+        <div class="control-group">
+          <h2>音</h2>
+          <div class="root-grid" id="rootGrid"></div>
+        </div>
+
+        <div class="control-group">
+          <h2>色</h2>
+          <div class="type-grid" id="typeGrid"></div>
+        </div>
+
+        <div class="control-group">
+          <h2>鳴らす</h2>
+          <div class="transport">
+            <button class="action-button" id="playChord" type="button">コード</button>
+            <button class="action-button" id="playArp" type="button">階段</button>
+            <button class="action-button" id="quizButton" type="button">クイズ</button>
+            <button class="action-button voice-button" id="voiceButton" type="button">声</button>
+            <button class="action-button sample-button" id="recordSample" type="button">録音</button>
+            <button class="action-button sample-button" id="clearSample" type="button">内蔵音</button>
+          </div>
+        </div>
+      </section>
+      <p class="voice-status" id="voiceStatus" aria-live="polite">声で操作: オフ</p>
+      <p class="voice-status sample-status" id="sampleStatus" aria-live="polite">サンプル: 内蔵音</p>
+
+      <section class="keyboard-section" aria-label="Piano keyboard">
+        <div class="keyboard-heading">
+          <div>
+            <p class="eyebrow">Try It</p>
+            <h2>大きい鍵盤を押してみよう</h2>
+          </div>
+          <p>PCキーボードは A S D F G H J でも鳴ります。</p>
+        </div>
+        <div class="piano" id="piano"></div>
+      </section>
+
+      <section class="quiz-panel" id="quizPanel" hidden>
+        <p class="eyebrow">Listening Quiz</p>
+        <h2>いま鳴ったコードはどっち？</h2>
+        <div class="quiz-options" id="quizOptions"></div>
+        <p id="quizResult"></p>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <a href="index.html#top">© bias.</a>
+    </footer>
+
+    <script>
+      const roots = [
+        { name: "C", midi: 60, key: "a" },
+        { name: "D", midi: 62, key: "s" },
+        { name: "E", midi: 64, key: "d" },
+        { name: "F", midi: 65, key: "f" },
+        { name: "G", midi: 67, key: "g" },
+        { name: "A", midi: 69, key: "h" },
+        { name: "B", midi: 71, key: "j" }
+      ];
+
+      const chordTypes = [
+        {
+          id: "major",
+          name: "Major",
+          label: "明るい",
+          intervals: [0, 4, 7],
+          lesson: "Majorは明るく聞こえやすいコード。1番目、3番目、5番目の音を重ねます。"
+        },
+        {
+          id: "minor",
+          name: "Minor",
+          label: "暗い",
+          intervals: [0, 3, 7],
+          lesson: "Minorは少しさびしく聞こえるコード。真ん中の音がMajorより半音下がります。"
+        },
+        {
+          id: "maj7",
+          name: "Maj7",
+          label: "きらきら",
+          intervals: [0, 4, 7, 11],
+          lesson: "Maj7はMajorに7番目の音を足したコード。やわらかく、少し大人っぽく響きます。"
+        },
+        {
+          id: "min7",
+          name: "Min7",
+          label: "夜っぽい",
+          intervals: [0, 3, 7, 10],
+          lesson: "Min7はMinorに7番目の音を足したコード。R&Bやlofiでよく使われます。"
+        },
+        {
+          id: "sus4",
+          name: "Sus4",
+          label: "待ってる",
+          intervals: [0, 5, 7],
+          lesson: "Sus4は3番目の音を4番目に変えたコード。次に進みたくなる感じがします。"
+        },
+        {
+          id: "add9",
+          name: "Add9",
+          label: "広い",
+          intervals: [0, 4, 7, 14],
+          lesson: "Add9はMajorに高い2番目の音を足したコード。空間が広がるように響きます。"
+        }
+      ];
+
+      const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+      let selectedRoot = roots[0];
+      let selectedType = chordTypes[0];
+      let audioContext;
+      let quizAnswer = null;
+
+      const rootGrid = document.querySelector("#rootGrid");
+      const typeGrid = document.querySelector("#typeGrid");
+      const piano = document.querySelector("#piano");
+      const noteRow = document.querySelector("#noteRow");
+      const chordName = document.querySelector("#chordName");
+      const lessonText = document.querySelector("#lessonText");
+      const quizPanel = document.querySelector("#quizPanel");
+      const quizOptions = document.querySelector("#quizOptions");
+      const quizResult = document.querySelector("#quizResult");
+      const voiceButton = document.querySelector("#voiceButton");
+      const voiceStatus = document.querySelector("#voiceStatus");
+      const recordSampleButton = document.querySelector("#recordSample");
+      const clearSampleButton = document.querySelector("#clearSample");
+      const sampleStatus = document.querySelector("#sampleStatus");
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      let recognition = null;
+      let voiceEnabled = false;
+      let sampleBuffer = null;
+      let sampleRecorder = null;
+      let isRecordingSample = false;
+
+      function getAudioContext() {
+        audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+        return audioContext;
+      }
+
+      function midiToFrequency(midi) {
+        return 440 * Math.pow(2, (midi - 69) / 12);
+      }
+
+      function noteName(midi) {
+        return noteNames[midi % 12];
+      }
+
+      function currentNotes() {
+        return selectedType.intervals.map((interval) => selectedRoot.midi + interval);
+      }
+
+      function playTone(midi, start, duration) {
+        const context = getAudioContext();
+        const gain = context.createGain();
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(0.14, start + 0.025);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+        gain.connect(context.destination);
+
+        if (sampleBuffer) {
+          const source = context.createBufferSource();
+          source.buffer = sampleBuffer;
+          source.playbackRate.setValueAtTime(Math.pow(2, (midi - 60) / 12), start);
+          source.connect(gain);
+          source.start(start);
+          source.stop(start + duration + 0.04);
+          return;
+        }
+
+        const oscillator = context.createOscillator();
+        oscillator.type = "triangle";
+        oscillator.frequency.setValueAtTime(midiToFrequency(midi), start);
+        oscillator.connect(gain);
+        oscillator.start(start);
+        oscillator.stop(start + duration + 0.04);
+      }
+
+      function playChord() {
+        const context = getAudioContext();
+        const start = context.currentTime + 0.02;
+        currentNotes().forEach((midi) => playTone(midi, start, 1.1));
+        spawnGhosts(currentNotes(), "chord");
+      }
+
+      function playArp() {
+        const context = getAudioContext();
+        const start = context.currentTime + 0.02;
+        currentNotes().forEach((midi, index) => playTone(midi, start + index * 0.18, 0.72));
+        currentNotes().forEach((midi, index) => {
+          window.setTimeout(() => spawnGhosts([midi], "arp"), index * 180);
+        });
+      }
+
+      function spawnGhosts(notes, mode) {
+        const layer = document.querySelector("#ghostLayer");
+        notes.forEach((midi, index) => {
+          const ghost = document.createElement("span");
+          ghost.className = `ghost-note ghost-note-${index % 4}`;
+          ghost.textContent = noteName(midi);
+          ghost.style.setProperty("--ghost-left", `${18 + Math.random() * 66}%`);
+          ghost.style.setProperty("--ghost-delay", `${mode === "arp" ? 0 : index * 70}ms`);
+          ghost.style.setProperty("--ghost-drift", `${Math.random() > 0.5 ? 1 : -1}`);
+          layer.appendChild(ghost);
+          window.setTimeout(() => ghost.remove(), 2100);
+        });
+      }
+
+      function setRoot(root) {
+        selectedRoot = root;
+        render();
+        playChord();
+      }
+
+      function setType(type) {
+        selectedType = type;
+        render();
+        playChord();
+      }
+
+      function render() {
+        chordName.textContent = `${selectedRoot.name} ${selectedType.name}`;
+        noteRow.innerHTML = currentNotes()
+          .map((midi) => `<span>${noteName(midi)}</span>`)
+          .join("");
+        lessonText.textContent = `${selectedType.lesson} ${selectedRoot.name}から数えると、${currentNotes().map(noteName).join("、")}です。`;
+
+        document.querySelectorAll("[data-root]").forEach((button) => {
+          button.classList.toggle("is-active", button.dataset.root === selectedRoot.name);
+        });
+        document.querySelectorAll("[data-type]").forEach((button) => {
+          button.classList.toggle("is-active", button.dataset.type === selectedType.id);
+        });
+        document.querySelectorAll("[data-key]").forEach((button) => {
+          button.classList.toggle("is-active", button.dataset.key === selectedRoot.name);
+        });
+      }
+
+      function buildControls() {
+        rootGrid.innerHTML = roots.map((root) => (
+          `<button type="button" data-root="${root.name}" aria-label="${root.name}を選ぶ">${root.name}<small>${root.key.toUpperCase()}</small></button>`
+        )).join("");
+
+        typeGrid.innerHTML = chordTypes.map((type) => (
+          `<button type="button" data-type="${type.id}"><span>${type.name}</span><small>${type.label}</small></button>`
+        )).join("");
+
+        piano.innerHTML = roots.map((root) => (
+          `<button class="piano-key" type="button" data-key="${root.name}"><span>${root.name}</span><small>${root.key.toUpperCase()}</small></button>`
+        )).join("");
+
+        rootGrid.addEventListener("click", (event) => {
+          const button = event.target.closest("[data-root]");
+          if (!button) return;
+          setRoot(roots.find((root) => root.name === button.dataset.root));
+        });
+
+        typeGrid.addEventListener("click", (event) => {
+          const button = event.target.closest("[data-type]");
+          if (!button) return;
+          setType(chordTypes.find((type) => type.id === button.dataset.type));
+        });
+
+        piano.addEventListener("click", (event) => {
+          const button = event.target.closest("[data-key]");
+          if (!button) return;
+          setRoot(roots.find((root) => root.name === button.dataset.key));
+        });
+      }
+
+      function startQuiz() {
+        const choices = ["major", "minor"];
+        const root = roots[Math.floor(Math.random() * roots.length)];
+        const type = chordTypes.find((item) => item.id === choices[Math.floor(Math.random() * choices.length)]);
+        selectedRoot = root;
+        selectedType = type;
+        quizAnswer = type.id;
+        quizResult.textContent = "";
+        quizPanel.hidden = false;
+        quizOptions.innerHTML = choices.map((id) => {
+          const option = chordTypes.find((item) => item.id === id);
+          return `<button type="button" data-answer="${id}">${option.name}<small>${option.label}</small></button>`;
+        }).join("");
+        render();
+        playChord();
+      }
+
+      function normalizeSpeech(text) {
+        return text
+          .toLowerCase()
+          .replace(/\s+/g, "")
+          .replace(/[。、,.]/g, "");
+      }
+
+      function handleVoiceCommand(text) {
+        const command = normalizeSpeech(text);
+        const rootAliases = [
+          ["C", ["c", "しー", "ド"]],
+          ["D", ["d", "でぃー", "レ"]],
+          ["E", ["e", "いー", "ミ"]],
+          ["F", ["f", "えふ", "ファ"]],
+          ["G", ["g", "じー", "ソ"]],
+          ["A", ["a", "えー", "ラ"]],
+          ["B", ["b", "びー", "シ"]]
+        ];
+        const typeAliases = [
+          ["major", ["major", "メジャー", "明るい"]],
+          ["minor", ["minor", "マイナー", "暗い"]],
+          ["maj7", ["maj7", "メジャーセブン", "きらきら"]],
+          ["min7", ["min7", "マイナーセブン", "夜"]],
+          ["sus4", ["sus4", "サスフォー", "待ってる"]],
+          ["add9", ["add9", "アドナイン", "広い"]]
+        ];
+
+        const rootMatch = rootAliases.find(([, words]) => words.some((word) => command.includes(word)));
+        if (rootMatch) {
+          setRoot(roots.find((root) => root.name === rootMatch[0]));
+        }
+
+        const typeMatch = typeAliases.find(([, words]) => words.some((word) => command.includes(word)));
+        if (typeMatch) {
+          setType(chordTypes.find((type) => type.id === typeMatch[0]));
+        }
+
+        if (command.includes("階段") || command.includes("アルペジオ") || command.includes("1音")) {
+          playArp();
+        } else if (command.includes("コード") || command.includes("鳴ら")) {
+          playChord();
+        } else if (command.includes("クイズ")) {
+          startQuiz();
+        }
+
+        voiceStatus.textContent = `声で操作: ${text}`;
+      }
+
+      function setupVoiceInput() {
+        if (!SpeechRecognition) {
+          voiceButton.disabled = true;
+          voiceStatus.textContent = "声で操作: このブラウザでは未対応";
+          return;
+        }
+
+        recognition = new SpeechRecognition();
+        recognition.lang = "ja-JP";
+        recognition.continuous = true;
+        recognition.interimResults = false;
+        recognition.onresult = (event) => {
+          const result = event.results[event.results.length - 1][0].transcript;
+          handleVoiceCommand(result);
+        };
+        recognition.onerror = () => {
+          voiceEnabled = false;
+          voiceButton.classList.remove("is-active");
+          voiceStatus.textContent = "声で操作: マイクを許可してもう一度";
+        };
+        recognition.onend = () => {
+          if (voiceEnabled) recognition.start();
+        };
+      }
+
+      async function recordSample() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
+          sampleStatus.textContent = "サンプル: このブラウザでは録音未対応";
+          return;
+        }
+
+        if (isRecordingSample) return;
+
+        try {
+          if (voiceEnabled && recognition) {
+            voiceEnabled = false;
+            voiceButton.classList.remove("is-active");
+            recognition.stop();
+            voiceStatus.textContent = "声で操作: オフ";
+          }
+
+          getAudioContext();
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          const chunks = [];
+          sampleRecorder = new MediaRecorder(stream);
+          isRecordingSample = true;
+          recordSampleButton.classList.add("is-active");
+          recordSampleButton.disabled = true;
+          sampleStatus.textContent = "サンプル: マイク接続OK / 5秒録音中";
+
+          sampleRecorder.ondataavailable = (event) => {
+            if (event.data.size > 0) chunks.push(event.data);
+          };
+
+          sampleRecorder.onstop = async () => {
+            stream.getTracks().forEach((track) => track.stop());
+            try {
+              const blob = new Blob(chunks, { type: sampleRecorder.mimeType || "audio/webm" });
+              const arrayBuffer = await blob.arrayBuffer();
+              sampleBuffer = await getAudioContext().decodeAudioData(arrayBuffer);
+              sampleStatus.textContent = "サンプル: 録音した音で演奏中";
+              clearSampleButton.classList.add("is-active");
+              playChord();
+            } catch {
+              sampleStatus.textContent = "サンプル: 録音の読み込みに失敗";
+            } finally {
+              isRecordingSample = false;
+              recordSampleButton.classList.remove("is-active");
+              recordSampleButton.disabled = false;
+            }
+          };
+
+          sampleRecorder.start();
+          window.setTimeout(() => {
+            if (sampleRecorder && sampleRecorder.state === "recording") {
+              sampleRecorder.stop();
+            }
+          }, 5000);
+        } catch {
+          isRecordingSample = false;
+          recordSampleButton.classList.remove("is-active");
+          recordSampleButton.disabled = false;
+          sampleStatus.textContent = "サンプル: マイクを許可してもう一度";
+        }
+      }
+
+      quizOptions.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-answer]");
+        if (!button) return;
+        const correct = button.dataset.answer === quizAnswer;
+        quizResult.textContent = correct ? "正解。耳がちゃんと違いをつかんでいます。" : "惜しい。もう一回聞いて、真ん中の音に注目してみよう。";
+        if (!correct) playChord();
+      });
+
+      document.querySelector("#playChord").addEventListener("click", playChord);
+      document.querySelector("#playArp").addEventListener("click", playArp);
+      document.querySelector("#playChordTop").addEventListener("click", playChord);
+      document.querySelector("#playArpTop").addEventListener("click", playArp);
+      document.querySelector("#quizButton").addEventListener("click", startQuiz);
+      recordSampleButton.addEventListener("click", recordSample);
+      clearSampleButton.addEventListener("click", () => {
+        sampleBuffer = null;
+        clearSampleButton.classList.remove("is-active");
+        sampleStatus.textContent = "サンプル: 内蔵音";
+        playChord();
+      });
+      voiceButton.addEventListener("click", () => {
+        if (!recognition) return;
+        voiceEnabled = !voiceEnabled;
+        voiceButton.classList.toggle("is-active", voiceEnabled);
+        if (voiceEnabled) {
+          recognition.start();
+          voiceStatus.textContent = "声で操作: 聞いています";
+        } else {
+          recognition.stop();
+          voiceStatus.textContent = "声で操作: オフ";
+        }
+      });
+
+      window.addEventListener("keydown", (event) => {
+        if (event.repeat) return;
+        const root = roots.find((item) => item.key === event.key.toLowerCase());
+        if (root) setRoot(root);
+      });
+
+      buildControls();
+      setupVoiceInput();
+      render();
+    </script>
+  </body>
+</html>
