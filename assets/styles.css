@@ -990,60 +990,96 @@ time {
   opacity: 0.58;
 }
 
-.mute-toggle {
+.device-sound-check {
   display: grid;
   grid-template-columns: 48px minmax(0, 1fr);
   gap: 14px;
   align-items: center;
   min-height: 76px;
-  border: 2px solid rgba(35, 107, 100, 0.44);
+  border: 2px solid rgba(199, 53, 46, 0.45);
   border-radius: 8px;
   padding: 14px 16px;
-  background: #e8f3ee;
-  color: #143f3b;
+  background: #fff0ed;
+  color: #8d2521;
   font: inherit;
   text-align: left;
   cursor: pointer;
-  box-shadow: 0 14px 34px rgba(35, 107, 100, 0.1);
+  box-shadow: 0 14px 34px rgba(199, 53, 46, 0.12);
 }
 
-.mute-toggle strong {
+.device-sound-check strong {
   display: block;
-  font-size: 22px;
+  font-size: 21px;
   line-height: 1.05;
 }
 
-.mute-toggle small {
+.device-sound-check small {
   display: block;
   margin-top: 4px;
-  color: #3b5d57;
+  color: #8d4a42;
   font-size: 12px;
   font-weight: 900;
 }
 
-.mute-toggle-icon {
+.device-sound-icon {
   position: relative;
   display: block;
   width: 48px;
   height: 48px;
   border-radius: 50%;
+  background: #c7352e;
+}
+
+.device-sound-icon::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 11px;
+  width: 24px;
+  height: 26px;
+  border: 3px solid #fff;
+  border-radius: 8px;
+}
+
+.device-sound-icon::after {
+  content: "";
+  position: absolute;
+  left: 27px;
+  top: 7px;
+  width: 4px;
+  height: 14px;
+  border-radius: 999px;
+  background: #fff;
+}
+
+.device-sound-check.is-ready {
+  border-color: rgba(35, 107, 100, 0.58);
+  background: #e8f3ee;
+  color: #143f3b;
+  box-shadow: 0 14px 34px rgba(35, 107, 100, 0.1);
+}
+
+.device-sound-check.is-ready small {
+  color: #3b5d57;
+}
+
+.device-sound-check.is-ready .device-sound-icon {
   background: #236b64;
 }
 
-.mute-toggle-icon::before {
-  content: "";
-  position: absolute;
+.device-sound-check.is-ready .device-sound-icon::before {
   left: 13px;
   top: 16px;
   width: 10px;
   height: 16px;
+  border: 0;
+  border-radius: 0;
   background: #fff;
   clip-path: polygon(0 28%, 42% 28%, 100% 0, 100% 100%, 42% 72%, 0 72%);
 }
 
-.mute-toggle-icon::after {
-  content: "";
-  position: absolute;
+.device-sound-check.is-ready .device-sound-icon::after {
+  left: auto;
   right: 11px;
   top: 14px;
   width: 11px;
@@ -1051,33 +1087,23 @@ time {
   border: 3px solid #fff;
   border-left: 0;
   border-radius: 0 999px 999px 0;
+  background: transparent;
 }
 
-.mute-toggle.is-muted {
-  border-color: rgba(199, 53, 46, 0.6);
-  background: #fff0ed;
-  color: #8d2521;
-  box-shadow: 0 14px 34px rgba(199, 53, 46, 0.12);
+.device-sound-check.needs-check {
+  animation: sound-check-pulse 820ms ease both;
 }
 
-.mute-toggle.is-muted small {
-  color: #8d4a42;
-}
+@keyframes sound-check-pulse {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
 
-.mute-toggle.is-muted .mute-toggle-icon {
-  background: #c7352e;
-}
-
-.mute-toggle.is-muted .mute-toggle-icon::after {
-  right: 9px;
-  top: 11px;
-  width: 24px;
-  height: 24px;
-  border: 0;
-  border-radius: 0;
-  background:
-    linear-gradient(45deg, transparent 43%, #fff 43%, #fff 57%, transparent 57%),
-    linear-gradient(-45deg, transparent 43%, #fff 43%, #fff 57%, transparent 57%);
+  35% {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 42px rgba(199, 53, 46, 0.22);
+  }
 }
 
 .sound-source-icon {
@@ -2681,13 +2707,13 @@ time {
     padding: 12px;
   }
 
-  .mute-toggle {
+  .device-sound-check {
     min-height: 82px;
     padding: 14px;
   }
 
-  .mute-toggle strong {
-    font-size: 24px;
+  .device-sound-check strong {
+    font-size: 21px;
   }
 
   .chord-intro h1 {

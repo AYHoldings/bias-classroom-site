@@ -6,7 +6,7 @@
     <title>Chord Lab | bias</title>
     <meta name="description" content="子どもと一緒にコードを聞いて学べる、biasの小さな音楽ラボ。">
     <link rel="icon" href="assets/images/mark.png">
-    <link rel="stylesheet" href="assets/styles.css?v=ensemble-roles">
+    <link rel="stylesheet" href="assets/styles.css?v=device-sound-check">
   </head>
   <body class="chord-page">
     <header class="site-header">
@@ -111,17 +111,17 @@
             <small>録った音</small>
           </button>
         </div>
-        <button class="mute-toggle" id="muteButton" type="button" aria-pressed="false">
-          <span class="mute-toggle-icon" aria-hidden="true"></span>
+        <button class="device-sound-check" id="deviceSoundButton" type="button" aria-pressed="false">
+          <span class="device-sound-icon" aria-hidden="true"></span>
           <span>
-            <strong id="muteLabel">音出る</strong>
-            <small id="muteHint">タップでミュート</small>
+            <strong id="deviceSoundLabel">iPhone消音スイッチ確認</strong>
+            <small id="deviceSoundHint">本体左側のスイッチを解除してからタップ</small>
           </span>
         </button>
       </section>
       <p class="voice-status" id="voiceStatus" aria-live="polite">声で操作: オフ</p>
       <p class="voice-status sample-status" id="sampleStatus" aria-live="polite">音色: シンセ音</p>
-      <p class="voice-status audio-status" id="audioStatus" aria-live="polite">音: 出ます</p>
+      <p class="voice-status audio-status" id="audioStatus" aria-live="polite">音: 本体の消音スイッチを確認してください</p>
 
       <section class="keyboard-section role-section" id="chordPart" aria-label="Piano keyboard">
         <div class="keyboard-heading">
@@ -266,9 +266,10 @@
       const synthSoundButton = document.querySelector("#synthSound");
       const sampleSoundButton = document.querySelector("#sampleSound");
       const sampleStatus = document.querySelector("#sampleStatus");
-      const muteButton = document.querySelector("#muteButton");
-      const muteLabel = document.querySelector("#muteLabel");
-      const muteHint = document.querySelector("#muteHint");
+      const soundSourcePanel = document.querySelector(".sound-source-panel");
+      const deviceSoundButton = document.querySelector("#deviceSoundButton");
+      const deviceSoundLabel = document.querySelector("#deviceSoundLabel");
+      const deviceSoundHint = document.querySelector("#deviceSoundHint");
       const audioStatus = document.querySelector("#audioStatus");
       const roleGrid = document.querySelector("#roleGrid");
       const partStatus = document.querySelector("#partStatus");
@@ -278,7 +279,7 @@
       const rhythmPads = document.querySelector("#rhythmPads");
       const leadPads = document.querySelector("#leadPads");
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const muteStorageKey = "bias-chord-lab-muted";
+      const soundReadyStorageKey = "bias-chord-lab-sound-ready";
       const roleStorageKey = "bias-chord-lab-role";
       const roles = {
         chord: "いまはコード係。和音でみんなの土台を作ります。",
@@ -296,7 +297,7 @@
       let voiceEnabled = false;
       let sampleBuffer = null;
       let soundSource = "synth";
-      let isMuted = false;
+      let deviceSoundReady = false;
       let activeRole = "chord";
       let sampleRecorder = null;
       let isRecordingSample = false;
@@ -318,7 +319,7 @@
         const compressor = context.createDynamicsCompressor();
         const limiter = context.createDynamicsCompressor();
 
-        input.gain.value = isMuted ? 0.0001 : 0.92;
+        input.gain.value = 0.92;
         compressor.threshold.value = -18;
         compressor.knee.value = 18;
         compressor.ratio.value = 3.5;
@@ -381,38 +382,44 @@
         return leadScale.map((interval) => selectedRoot.midi + interval);
       }
 
-      function updateMuteOutput() {
-        if (!outputChain) return;
-        const context = getAudioContext();
-        outputChain.input.gain.setTargetAtTime(isMuted ? 0.0001 : 0.92, context.currentTime, 0.012);
+      function updateDeviceSoundControls() {
+        deviceSoundButton.classList.toggle("is-ready", deviceSoundReady);
+        deviceSoundButton.setAttribute("aria-pressed", String(deviceSoundReady));
+        deviceSoundLabel.textContent = deviceSoundReady ? "サウンド準備OK" : "iPhone消音スイッチ確認";
+        deviceSoundHint.textContent = deviceSoundReady
+          ? "音が小さい時は本体音量も確認"
+          : "本体左側のスイッチを解除してからタップ";
+        audioStatus.textContent = deviceSoundReady
+          ? "音: 本体スイッチ確認済み"
+          : "音: 本体の消音スイッチを確認してください";
       }
 
-      function updateMuteControls() {
-        muteButton.classList.toggle("is-muted", isMuted);
-        muteButton.setAttribute("aria-pressed", String(isMuted));
-        muteLabel.textContent = isMuted ? "ミュート中" : "音出る";
-        muteHint.textContent = isMuted ? "タップで音を出す" : "タップでミュート";
-        audioStatus.textContent = isMuted ? "音: ミュート中" : "音: 出ます";
-      }
-
-      function setMuted(nextMuted) {
-        isMuted = nextMuted;
-        updateMuteControls();
-        updateMuteOutput();
+      function setDeviceSoundReady(nextReady) {
+        deviceSoundReady = nextReady;
+        updateDeviceSoundControls();
         try {
-          localStorage.setItem(muteStorageKey, isMuted ? "1" : "0");
+          localStorage.setItem(soundReadyStorageKey, deviceSoundReady ? "1" : "0");
         } catch (error) {
-          // 保存できない環境でも、画面上の切替はその場で使えるようにする。
+          // 保存できない環境でも、確認フローはその場で使えるようにする。
         }
       }
 
-      function loadMutePreference() {
+      function loadDeviceSoundPreference() {
         try {
-          isMuted = localStorage.getItem(muteStorageKey) === "1";
+          deviceSoundReady = localStorage.getItem(soundReadyStorageKey) === "1";
         } catch (error) {
-          isMuted = false;
+          deviceSoundReady = false;
         }
-        updateMuteControls();
+        updateDeviceSoundControls();
+      }
+
+      function requestDeviceSoundCheck() {
+        if (deviceSoundReady) return false;
+        audioStatus.textContent = "音: 先にiPhone本体の消音スイッチを確認してください";
+        deviceSoundButton.classList.add("needs-check");
+        soundSourcePanel.scrollIntoView({ behavior: "smooth", block: "center" });
+        window.setTimeout(() => deviceSoundButton.classList.remove("needs-check"), 1200);
+        return true;
       }
 
       function playTone(midi, start, duration) {
@@ -491,6 +498,7 @@
       }
 
       function playRhythmPad(id) {
+        if (requestDeviceSoundCheck()) return;
         const context = getAudioContext();
         const start = context.currentTime + 0.01;
         if (id === "kick") {
@@ -507,12 +515,14 @@
       }
 
       function playLeadPad(midi) {
+        if (requestDeviceSoundCheck()) return;
         const context = getAudioContext();
         playTone(midi, context.currentTime + 0.01, 0.58);
         spawnGhosts([midi], "lead");
       }
 
       function playChord() {
+        if (requestDeviceSoundCheck()) return;
         const context = getAudioContext();
         const start = context.currentTime + 0.02;
         currentNotes().forEach((midi) => playTone(midi, start, 1.1));
@@ -520,6 +530,7 @@
       }
 
       function playArp() {
+        if (requestDeviceSoundCheck()) return;
         const context = getAudioContext();
         const start = context.currentTime + 0.02;
         currentNotes().forEach((midi, index) => playTone(midi, start + index * 0.18, 0.72));
@@ -927,7 +938,10 @@
       setupSampleRecorderButton();
       synthSoundButton.addEventListener("click", () => setSoundSource("synth"));
       sampleSoundButton.addEventListener("click", () => setSoundSource("sample"));
-      muteButton.addEventListener("click", () => setMuted(!isMuted));
+      deviceSoundButton.addEventListener("click", () => {
+        setDeviceSoundReady(true);
+        playChord();
+      });
       voiceButton.addEventListener("click", () => {
         if (!recognition) return;
         voiceEnabled = !voiceEnabled;
@@ -960,7 +974,7 @@
 
       buildControls();
       setupVoiceInput();
-      loadMutePreference();
+      loadDeviceSoundPreference();
       render();
       loadRolePreference();
       window.setTimeout(revealToneQuest, toneQuestDelay);
