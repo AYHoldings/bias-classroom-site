@@ -1602,6 +1602,7 @@ time {
   padding: 24px;
   background: rgba(255, 255, 255, 0.68);
   box-shadow: 0 20px 64px rgba(22, 22, 22, 0.07);
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
 }
 
 .settings-status strong {
@@ -1617,6 +1618,12 @@ time {
   margin: 16px 0 0;
   color: #4d4b46;
   line-height: 1.7;
+}
+
+.settings-shell.is-saved .settings-status {
+  border-color: rgba(35, 107, 100, 0.42);
+  box-shadow: 0 24px 74px rgba(35, 107, 100, 0.16);
+  transform: translateY(-2px);
 }
 
 .settings-grid {
@@ -1834,6 +1841,19 @@ time {
   padding-top: 24px;
 }
 
+.settings-save-status {
+  min-height: 22px;
+  margin: 0 auto 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.55;
+}
+
+.settings-save-status.is-saved {
+  color: var(--lesson);
+}
+
 .settings-actions .action-button {
   min-height: 54px;
   min-width: 160px;
@@ -1844,6 +1864,18 @@ time {
   color: #fff;
   font: inherit;
   font-weight: 800;
+  transition: background 180ms ease, color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+}
+
+.settings-actions .action-button.is-saving {
+  opacity: 0.74;
+}
+
+.settings-actions .action-button.is-saved {
+  background: #dcecf3;
+  color: var(--lesson);
+  box-shadow: 0 12px 34px rgba(35, 107, 100, 0.18);
+  transform: translateY(-1px);
 }
 
 .text-link {
@@ -2594,5 +2626,9 @@ time {
   .settings-actions {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .settings-save-status {
+    margin-right: 0;
   }
 }
