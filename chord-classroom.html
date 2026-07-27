@@ -6,7 +6,7 @@
     <title>Chord Lab | bias</title>
     <meta name="description" content="子どもと一緒にコードを聞いて学べる、biasの小さな音楽ラボ。">
     <link rel="icon" href="assets/images/mark.png">
-    <link rel="stylesheet" href="assets/styles.css?v=quiz-scroll">
+    <link rel="stylesheet" href="assets/styles.css?v=mute-toggle">
   </head>
   <body class="chord-page">
     <header class="site-header">
@@ -89,9 +89,17 @@
             <small>録った音</small>
           </button>
         </div>
+        <button class="mute-toggle" id="muteButton" type="button" aria-pressed="false">
+          <span class="mute-toggle-icon" aria-hidden="true"></span>
+          <span>
+            <strong id="muteLabel">音出る</strong>
+            <small id="muteHint">タップでミュート</small>
+          </span>
+        </button>
       </section>
       <p class="voice-status" id="voiceStatus" aria-live="polite">声で操作: オフ</p>
       <p class="voice-status sample-status" id="sampleStatus" aria-live="polite">音色: シンセ音</p>
+      <p class="voice-status audio-status" id="audioStatus" aria-live="polite">音: 出ます</p>
 
       <section class="keyboard-section" aria-label="Piano keyboard">
         <div class="keyboard-heading">
@@ -214,11 +222,17 @@
       const synthSoundButton = document.querySelector("#synthSound");
       const sampleSoundButton = document.querySelector("#sampleSound");
       const sampleStatus = document.querySelector("#sampleStatus");
+      const muteButton = document.querySelector("#muteButton");
+      const muteLabel = document.querySelector("#muteLabel");
+      const muteHint = document.querySelector("#muteHint");
+      const audioStatus = document.querySelector("#audioStatus");
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const muteStorageKey = "bias-chord-lab-muted";
       let recognition = null;
       let voiceEnabled = false;
       let sampleBuffer = null;
       let soundSource = "synth";
+      let isMuted = false;
       let sampleRecorder = null;
       let isRecordingSample = false;
       let sampleStream = null;
@@ -239,7 +253,7 @@
         const compressor = context.createDynamicsCompressor();
         const limiter = context.createDynamicsCompressor();
 
-        input.gain.value = 0.92;
+        input.gain.value = isMuted ? 0.0001 : 0.92;
         compressor.threshold.value = -18;
         compressor.knee.value = 18;
         compressor.ratio.value = 3.5;
@@ -296,6 +310,40 @@
 
       function currentNotes() {
         return selectedType.intervals.map((interval) => selectedRoot.midi + interval);
+      }
+
+      function updateMuteOutput() {
+        if (!outputChain) return;
+        const context = getAudioContext();
+        outputChain.input.gain.setTargetAtTime(isMuted ? 0.0001 : 0.92, context.currentTime, 0.012);
+      }
+
+      function updateMuteControls() {
+        muteButton.classList.toggle("is-muted", isMuted);
+        muteButton.setAttribute("aria-pressed", String(isMuted));
+        muteLabel.textContent = isMuted ? "ミュート中" : "音出る";
+        muteHint.textContent = isMuted ? "タップで音を出す" : "タップでミュート";
+        audioStatus.textContent = isMuted ? "音: ミュート中" : "音: 出ます";
+      }
+
+      function setMuted(nextMuted) {
+        isMuted = nextMuted;
+        updateMuteControls();
+        updateMuteOutput();
+        try {
+          localStorage.setItem(muteStorageKey, isMuted ? "1" : "0");
+        } catch (error) {
+          // 保存できない環境でも、画面上の切替はその場で使えるようにする。
+        }
+      }
+
+      function loadMutePreference() {
+        try {
+          isMuted = localStorage.getItem(muteStorageKey) === "1";
+        } catch (error) {
+          isMuted = false;
+        }
+        updateMuteControls();
       }
 
       function playTone(midi, start, duration) {
@@ -680,6 +728,7 @@
       setupSampleRecorderButton();
       synthSoundButton.addEventListener("click", () => setSoundSource("synth"));
       sampleSoundButton.addEventListener("click", () => setSoundSource("sample"));
+      muteButton.addEventListener("click", () => setMuted(!isMuted));
       voiceButton.addEventListener("click", () => {
         if (!recognition) return;
         voiceEnabled = !voiceEnabled;
@@ -701,6 +750,7 @@
 
       buildControls();
       setupVoiceInput();
+      loadMutePreference();
       render();
       window.setTimeout(revealToneQuest, toneQuestDelay);
     </script>

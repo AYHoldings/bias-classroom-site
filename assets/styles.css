@@ -865,6 +865,10 @@ time {
   margin-top: 6px;
 }
 
+.audio-status {
+  margin-top: 6px;
+}
+
 .sound-source-panel {
   width: min(1120px, calc(100% - 40px));
   margin: 14px auto 0;
@@ -921,6 +925,96 @@ time {
 
 .sound-source-button.is-disabled:not(.is-active) {
   opacity: 0.58;
+}
+
+.mute-toggle {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  min-height: 76px;
+  border: 2px solid rgba(35, 107, 100, 0.44);
+  border-radius: 8px;
+  padding: 14px 16px;
+  background: #e8f3ee;
+  color: #143f3b;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 14px 34px rgba(35, 107, 100, 0.1);
+}
+
+.mute-toggle strong {
+  display: block;
+  font-size: 22px;
+  line-height: 1.05;
+}
+
+.mute-toggle small {
+  display: block;
+  margin-top: 4px;
+  color: #3b5d57;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.mute-toggle-icon {
+  position: relative;
+  display: block;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #236b64;
+}
+
+.mute-toggle-icon::before {
+  content: "";
+  position: absolute;
+  left: 13px;
+  top: 16px;
+  width: 10px;
+  height: 16px;
+  background: #fff;
+  clip-path: polygon(0 28%, 42% 28%, 100% 0, 100% 100%, 42% 72%, 0 72%);
+}
+
+.mute-toggle-icon::after {
+  content: "";
+  position: absolute;
+  right: 11px;
+  top: 14px;
+  width: 11px;
+  height: 20px;
+  border: 3px solid #fff;
+  border-left: 0;
+  border-radius: 0 999px 999px 0;
+}
+
+.mute-toggle.is-muted {
+  border-color: rgba(199, 53, 46, 0.6);
+  background: #fff0ed;
+  color: #8d2521;
+  box-shadow: 0 14px 34px rgba(199, 53, 46, 0.12);
+}
+
+.mute-toggle.is-muted small {
+  color: #8d4a42;
+}
+
+.mute-toggle.is-muted .mute-toggle-icon {
+  background: #c7352e;
+}
+
+.mute-toggle.is-muted .mute-toggle-icon::after {
+  right: 9px;
+  top: 11px;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 0;
+  background:
+    linear-gradient(45deg, transparent 43%, #fff 43%, #fff 57%, transparent 57%),
+    linear-gradient(-45deg, transparent 43%, #fff 43%, #fff 57%, transparent 57%);
 }
 
 .sound-source-icon {
@@ -2444,6 +2538,15 @@ time {
   .sound-source-button {
     min-height: 78px;
     padding: 12px;
+  }
+
+  .mute-toggle {
+    min-height: 82px;
+    padding: 14px;
+  }
+
+  .mute-toggle strong {
+    font-size: 24px;
   }
 
   .chord-intro h1 {
