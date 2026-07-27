@@ -297,6 +297,113 @@ time {
   line-height: 1.75;
 }
 
+.portfolio-case-feature {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(320px, 1.18fr);
+  gap: clamp(18px, 4vw, 42px);
+  align-items: start;
+  margin-top: clamp(34px, 5vw, 58px);
+  border-top: 1px solid var(--line);
+  padding-top: clamp(24px, 4vw, 42px);
+}
+
+.portfolio-case-feature h3 {
+  margin-bottom: 12px;
+  font-size: clamp(32px, 4vw, 54px);
+  line-height: 0.95;
+}
+
+.portfolio-case-feature p {
+  color: #4d4b46;
+  line-height: 1.75;
+}
+
+.case-feature-copy {
+  position: sticky;
+  top: 116px;
+}
+
+.case-feature-body {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.case-role-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.case-role-grid span {
+  display: grid;
+  align-content: center;
+  gap: 7px;
+  min-height: 104px;
+  border: 1px solid rgba(22, 22, 22, 0.12);
+  border-radius: 8px;
+  padding: 16px;
+  background: rgba(246, 245, 239, 0.74);
+}
+
+.case-role-grid strong {
+  font-size: 18px;
+}
+
+.case-role-grid small {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.case-status {
+  margin: 0;
+  border-left: 3px solid var(--lesson);
+  padding: 4px 0 4px 14px;
+  color: #4d4b46;
+  font-weight: 800;
+}
+
+.case-detail-list {
+  display: grid;
+  gap: 0;
+  margin: 8px 0 0;
+}
+
+.case-detail-list div {
+  display: grid;
+  grid-template-columns: 86px minmax(0, 1fr);
+  gap: 18px;
+  border-top: 1px solid rgba(217, 215, 207, 0.84);
+  padding: 14px 0;
+}
+
+.case-detail-list dt {
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.case-detail-list dd {
+  margin: 0;
+  color: #4d4b46;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.case-link {
+  justify-self: start;
+  border: 1px solid rgba(22, 22, 22, 0.14);
+  border-radius: 999px;
+  padding: 10px 15px;
+  background: var(--lesson);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 900;
+}
+
 .news-item {
   display: grid;
   grid-template-columns: 190px minmax(0, 1fr);
@@ -921,6 +1028,123 @@ time {
 .part-status {
   grid-column: 1 / -1;
   margin: -4px 0 0;
+}
+
+.part-tool-panel {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 18px;
+  border: 1px solid rgba(22, 22, 22, 0.12);
+  border-radius: 8px;
+  padding: clamp(16px, 3vw, 22px);
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.part-tool-panel h3 {
+  font-size: clamp(22px, 2.8vw, 32px);
+  line-height: 1;
+}
+
+.part-tool-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.part-tool-status {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.55;
+}
+
+.pattern-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.pattern-grid button {
+  display: grid;
+  gap: 5px;
+  min-height: 74px;
+  border: 1px solid rgba(22, 22, 22, 0.16);
+  border-radius: 8px;
+  padding: 13px;
+  background: rgba(246, 245, 239, 0.74);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pattern-grid button.is-active {
+  border-color: rgba(35, 107, 100, 0.58);
+  background: #dcecf3;
+}
+
+.pattern-grid strong {
+  font-size: 15px;
+}
+
+.pattern-grid small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.sequencer-head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sequence-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.sequence-row {
+  display: grid;
+  grid-template-columns: 62px repeat(8, minmax(0, 1fr));
+  gap: 6px;
+  align-items: center;
+}
+
+.sequence-row strong {
+  font-size: 12px;
+}
+
+.sequence-row button {
+  aspect-ratio: 1;
+  min-width: 0;
+  border: 1px solid rgba(22, 22, 22, 0.14);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.74);
+  color: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.sequence-row button.is-on {
+  background: var(--lesson);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.56);
+}
+
+.sequence-row button.is-current {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.sequence-tempo {
+  max-width: 360px;
+}
+
+.lead-filter-panel {
+  grid-template-columns: minmax(190px, 0.7fr) repeat(2, minmax(160px, 1fr));
+  align-items: end;
 }
 
 .control-group {
@@ -2385,10 +2609,12 @@ time {
   .hero,
   .split,
   .portfolio-hero,
+  .portfolio-case-feature,
   .chord-stage,
   .tone-lab,
   .entrance-hero,
   .ensemble-panel,
+  .lead-filter-panel,
   .control-band,
   .tone-control-band,
   .settings-hero,
@@ -2402,6 +2628,10 @@ time {
   .tone-lab,
   .entrance-hero {
     min-height: auto;
+  }
+
+  .case-feature-copy {
+    position: static;
   }
 
   .entrance-grid {
@@ -2764,6 +2994,8 @@ time {
   .type-grid,
   .quiz-options,
   .role-grid,
+  .pattern-grid,
+  .case-role-grid,
   .rhythm-grid,
   .lead-grid,
   .check-grid {
@@ -2774,6 +3006,17 @@ time {
     width: min(100%, 362px);
     margin: 0 auto;
     padding: 24px 0;
+  }
+
+  .part-tool-panel {
+    width: min(100%, 362px);
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .sequence-row {
+    grid-template-columns: 52px repeat(8, minmax(0, 1fr));
+    gap: 4px;
   }
 
   .role-grid button {

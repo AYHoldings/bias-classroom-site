@@ -6,7 +6,7 @@
     <title>Chord Lab | bias</title>
     <meta name="description" content="子どもと一緒にコードを聞いて学べる、biasの小さな音楽ラボ。">
     <link rel="icon" href="assets/images/mark.png">
-    <link rel="stylesheet" href="assets/styles.css?v=settings-no-status">
+    <link rel="stylesheet" href="assets/styles.css?v=ensemble-tools">
   </head>
   <body class="chord-page">
     <header class="site-header">
@@ -92,7 +92,7 @@
           </button>
           <button type="button" data-role="lead" aria-pressed="false">
             <strong>リード係</strong>
-            <small>メロディ担当</small>
+            <small>メロディ</small>
           </button>
         </div>
         <p class="part-status" id="partStatus" aria-live="polite">いまはコード係。和音でみんなの土台を作ります。</p>
@@ -114,14 +114,14 @@
         <button class="device-sound-check" id="deviceSoundButton" type="button" aria-pressed="false">
           <span class="device-sound-icon" aria-hidden="true"></span>
           <span>
-            <strong id="deviceSoundLabel">iPhone消音スイッチ確認</strong>
-            <small id="deviceSoundHint">本体左側のスイッチを解除してからタップ</small>
+            <strong id="deviceSoundLabel">ブラウザ音声を有効にする</strong>
+            <small id="deviceSoundHint">音量を確認してからタップ</small>
           </span>
         </button>
       </section>
       <p class="voice-status" id="voiceStatus" aria-live="polite">声で操作: オフ</p>
       <p class="voice-status sample-status" id="sampleStatus" aria-live="polite">音色: シンセ音</p>
-      <p class="voice-status audio-status" id="audioStatus" aria-live="polite">音: 本体の消音スイッチを確認してください</p>
+      <p class="voice-status audio-status" id="audioStatus" aria-live="polite">音: ブラウザ音声を有効にしてください</p>
 
       <section class="keyboard-section role-section" id="chordPart" aria-label="Piano keyboard">
         <div class="keyboard-heading">
@@ -130,6 +130,18 @@
             <h2>大きい鍵盤を押してみよう</h2>
           </div>
           <p>PCキーボードは A S D F G H J でも鳴ります。</p>
+        </div>
+        <div class="part-tool-panel chord-pattern-panel">
+          <div>
+            <p class="eyebrow">Pattern</p>
+            <h3>簡単なコード進行</h3>
+          </div>
+          <div class="pattern-grid" id="patternGrid"></div>
+          <div class="part-tool-actions">
+            <button class="mini-button" id="playPattern" type="button">進行を鳴らす</button>
+            <button class="mini-button" id="nextPatternChord" type="button">次のコード</button>
+          </div>
+          <p class="part-tool-status" id="patternStatus">パターンを選んで、コードの流れを聞けます。</p>
         </div>
         <div class="piano" id="piano"></div>
       </section>
@@ -142,6 +154,20 @@
           </div>
           <p>4つのパッドで、みんなのテンポを作ります。</p>
         </div>
+        <div class="part-tool-panel rhythm-sequencer">
+          <div class="sequencer-head">
+            <div>
+              <p class="eyebrow">Sequencer</p>
+              <h3>ステップをオンオフ</h3>
+            </div>
+            <button class="mini-button" id="sequenceToggle" type="button" aria-pressed="false">スタート</button>
+          </div>
+          <div class="sequence-grid" id="sequenceGrid" aria-label="Rhythm sequencer"></div>
+          <label class="tone-slider-row sequence-tempo">
+            <span>Tempo</span>
+            <input id="sequenceTempo" type="range" min="70" max="140" value="96">
+          </label>
+        </div>
         <div class="pad-grid rhythm-grid" id="rhythmPads"></div>
       </section>
 
@@ -152,6 +178,20 @@
             <h2>外しにくいメロディ</h2>
           </div>
           <p>今の音に合う音だけを並べています。</p>
+        </div>
+        <div class="part-tool-panel lead-filter-panel">
+          <div>
+            <p class="eyebrow">Filter</p>
+            <h3>リードの音を削る</h3>
+          </div>
+          <label class="tone-slider-row">
+            <span>明るさ</span>
+            <input id="leadFilterCutoff" type="range" min="500" max="7200" value="3600">
+          </label>
+          <label class="tone-slider-row">
+            <span>クセ</span>
+            <input id="leadFilterResonance" type="range" min="0" max="18" value="4">
+          </label>
         </div>
         <div class="pad-grid lead-grid" id="leadPads"></div>
       </section>
@@ -240,6 +280,20 @@
           label: "広い",
           intervals: [0, 4, 7, 14],
           lesson: "Add9はMajorに高い2番目の音を足したコード。空間が広がるように響きます。"
+        },
+        {
+          id: "7th",
+          name: "7th",
+          label: "ブルース",
+          intervals: [0, 4, 7, 10],
+          lesson: "7thはMajorに低めの7番目を足したコード。少しざらっとして、次へ進む力があります。"
+        },
+        {
+          id: "dim",
+          name: "Dim",
+          label: "あやしい",
+          intervals: [0, 3, 6],
+          lesson: "Dimは音の間隔がせまく、少し不安に聞こえるコード。短く使うと強いアクセントになります。"
         }
       ];
 
@@ -278,6 +332,15 @@
       const leadPart = document.querySelector("#leadPart");
       const rhythmPads = document.querySelector("#rhythmPads");
       const leadPads = document.querySelector("#leadPads");
+      const patternGrid = document.querySelector("#patternGrid");
+      const playPatternButton = document.querySelector("#playPattern");
+      const nextPatternChordButton = document.querySelector("#nextPatternChord");
+      const patternStatus = document.querySelector("#patternStatus");
+      const sequenceGrid = document.querySelector("#sequenceGrid");
+      const sequenceToggle = document.querySelector("#sequenceToggle");
+      const sequenceTempo = document.querySelector("#sequenceTempo");
+      const leadFilterCutoff = document.querySelector("#leadFilterCutoff");
+      const leadFilterResonance = document.querySelector("#leadFilterResonance");
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       const soundReadyStorageKey = "bias-chord-lab-sound-ready";
       const roleStorageKey = "bias-chord-lab-role";
@@ -292,13 +355,60 @@
         { id: "hat", label: "Hat", hint: "細かく" },
         { id: "clap", label: "Clap", hint: "合いの手" }
       ];
+      const chordPatterns = [
+        {
+          id: "pop",
+          name: "I - V - vi - IV",
+          label: "王道",
+          steps: [
+            { offset: 0, type: "major" },
+            { offset: 7, type: "major" },
+            { offset: 9, type: "minor" },
+            { offset: 5, type: "major" }
+          ]
+        },
+        {
+          id: "gentle",
+          name: "I - vi - IV - V",
+          label: "やさしい",
+          steps: [
+            { offset: 0, type: "major" },
+            { offset: 9, type: "minor" },
+            { offset: 5, type: "major" },
+            { offset: 7, type: "major" }
+          ]
+        },
+        {
+          id: "neo",
+          name: "ii - V - I",
+          label: "少し大人",
+          steps: [
+            { offset: 2, type: "min7" },
+            { offset: 7, type: "major" },
+            { offset: 0, type: "maj7" }
+          ]
+        }
+      ];
       const leadScale = [0, 2, 4, 7, 9, 12];
+      const sequenceLength = 8;
       let recognition = null;
       let voiceEnabled = false;
       let sampleBuffer = null;
       let soundSource = "synth";
       let deviceSoundReady = false;
       let activeRole = "chord";
+      let selectedPattern = chordPatterns[0];
+      let patternBaseRoot = roots[0];
+      let patternStep = 0;
+      let sequenceStep = 0;
+      let sequenceTimer = null;
+      let sequenceRunning = false;
+      const rhythmSequence = {
+        kick: [true, false, false, false, true, false, false, false],
+        snare: [false, false, true, false, false, false, true, false],
+        hat: [true, true, true, true, true, true, true, true],
+        clap: [false, false, false, false, false, false, true, false]
+      };
       let sampleRecorder = null;
       let isRecordingSample = false;
       let sampleStream = null;
@@ -378,20 +488,36 @@
         return selectedType.intervals.map((interval) => selectedRoot.midi + interval);
       }
 
+      function notesFor(rootMidi, type) {
+        return type.intervals.map((interval) => rootMidi + interval);
+      }
+
       function leadNotes() {
         return leadScale.map((interval) => selectedRoot.midi + interval);
       }
 
+      function isAppleMobileDevice() {
+        const platform = navigator.platform || "";
+        const userAgent = navigator.userAgent || "";
+        return /iPhone|iPad|iPod/.test(userAgent) || (platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      }
+
       function updateDeviceSoundControls() {
+        const isMobileApple = isAppleMobileDevice();
+        const pendingLabel = isMobileApple ? "iPhone消音スイッチ確認" : "ブラウザ音声を有効にする";
+        const pendingHint = isMobileApple
+          ? "本体左側のスイッチを解除してからタップ"
+          : "タブやOSの音量を確認してからタップ";
+        const readyStatus = isMobileApple ? "音: 本体スイッチ確認済み" : "音: ブラウザ音声を確認済み";
+        const readyHint = isMobileApple ? "音が小さい時は本体音量も確認" : "音が小さい時はタブやOS音量も確認";
+        const pendingStatus = isMobileApple
+          ? "音: 本体の消音スイッチを確認してください"
+          : "音: ブラウザ音声を有効にしてください";
         deviceSoundButton.classList.toggle("is-ready", deviceSoundReady);
         deviceSoundButton.setAttribute("aria-pressed", String(deviceSoundReady));
-        deviceSoundLabel.textContent = deviceSoundReady ? "サウンド準備OK" : "iPhone消音スイッチ確認";
-        deviceSoundHint.textContent = deviceSoundReady
-          ? "音が小さい時は本体音量も確認"
-          : "本体左側のスイッチを解除してからタップ";
-        audioStatus.textContent = deviceSoundReady
-          ? "音: 本体スイッチ確認済み"
-          : "音: 本体の消音スイッチを確認してください";
+        deviceSoundLabel.textContent = deviceSoundReady ? "サウンド準備OK" : pendingLabel;
+        deviceSoundHint.textContent = deviceSoundReady ? readyHint : pendingHint;
+        audioStatus.textContent = deviceSoundReady ? readyStatus : pendingStatus;
       }
 
       function setDeviceSoundReady(nextReady) {
@@ -415,26 +541,36 @@
 
       function requestDeviceSoundCheck() {
         if (deviceSoundReady) return false;
-        audioStatus.textContent = "音: 先にiPhone本体の消音スイッチを確認してください";
+        audioStatus.textContent = isAppleMobileDevice()
+          ? "音: 先にiPhone本体の消音スイッチを確認してください"
+          : "音: 先にブラウザ音声を有効にしてください";
         deviceSoundButton.classList.add("needs-check");
         soundSourcePanel.scrollIntoView({ behavior: "smooth", block: "center" });
         window.setTimeout(() => deviceSoundButton.classList.remove("needs-check"), 1200);
         return true;
       }
 
-      function playTone(midi, start, duration) {
+      function playTone(midi, start, duration, options = {}) {
         const context = getAudioContext();
         const gain = context.createGain();
+        const filter = options.filterFrequency ? context.createBiquadFilter() : null;
         gain.gain.setValueAtTime(0.0001, start);
         gain.gain.exponentialRampToValueAtTime(0.14, start + 0.025);
         gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+        if (filter) {
+          filter.type = "lowpass";
+          filter.frequency.setValueAtTime(options.filterFrequency, start);
+          filter.Q.setValueAtTime(options.filterQ || 1, start);
+          filter.connect(gain);
+        }
         gain.connect(getOutputChain(context).input);
+        const destination = filter || gain;
 
         if (soundSource === "sample" && sampleBuffer) {
           const source = context.createBufferSource();
           source.buffer = sampleBuffer;
           source.playbackRate.setValueAtTime(Math.pow(2, (midi - 60) / 12), start);
-          source.connect(gain);
+          source.connect(destination);
           source.start(start);
           source.stop(start + duration + 0.04);
           return;
@@ -443,7 +579,7 @@
         const oscillator = context.createOscillator();
         oscillator.type = "triangle";
         oscillator.frequency.setValueAtTime(midiToFrequency(midi), start);
-        oscillator.connect(gain);
+        oscillator.connect(destination);
         oscillator.start(start);
         oscillator.stop(start + duration + 0.04);
       }
@@ -517,16 +653,19 @@
       function playLeadPad(midi) {
         if (requestDeviceSoundCheck()) return;
         const context = getAudioContext();
-        playTone(midi, context.currentTime + 0.01, 0.58);
+        playTone(midi, context.currentTime + 0.01, 0.62, {
+          filterFrequency: Number(leadFilterCutoff.value),
+          filterQ: Number(leadFilterResonance.value) || 1
+        });
         spawnGhosts([midi], "lead");
       }
 
-      function playChord() {
+      function playChord(notes = currentNotes(), duration = 1.1) {
         if (requestDeviceSoundCheck()) return;
         const context = getAudioContext();
         const start = context.currentTime + 0.02;
-        currentNotes().forEach((midi) => playTone(midi, start, 1.1));
-        spawnGhosts(currentNotes(), "chord");
+        notes.forEach((midi) => playTone(midi, start, duration));
+        spawnGhosts(notes, "chord");
       }
 
       function playArp() {
@@ -537,6 +676,45 @@
         currentNotes().forEach((midi, index) => {
           window.setTimeout(() => spawnGhosts([midi], "arp"), index * 180);
         });
+      }
+
+      function rootFromMidi(midi) {
+        const pitch = ((midi % 12) + 12) % 12;
+        return roots.find((root) => root.midi % 12 === pitch) || selectedRoot;
+      }
+
+      function applyPatternStep(step) {
+        const rootMidi = patternBaseRoot.midi + step.offset;
+        const nextRoot = rootFromMidi(rootMidi);
+        const nextType = chordTypes.find((type) => type.id === step.type) || selectedType;
+        selectedRoot = nextRoot;
+        selectedType = nextType;
+        render();
+        const notes = notesFor(rootMidi, nextType);
+        playChord(notes, 0.92);
+        patternStatus.textContent = `${selectedPattern.name}: ${nextRoot.name} ${nextType.name}`;
+      }
+
+      function playPattern() {
+        if (requestDeviceSoundCheck()) return;
+        const context = getAudioContext();
+        const start = context.currentTime + 0.03;
+        patternBaseRoot = selectedRoot;
+        selectedPattern.steps.forEach((step, index) => {
+          const rootMidi = patternBaseRoot.midi + step.offset;
+          const type = chordTypes.find((item) => item.id === step.type) || selectedType;
+          notesFor(rootMidi, type).forEach((midi) => playTone(midi, start + index * 0.72, 0.62));
+          window.setTimeout(() => spawnGhosts(notesFor(rootMidi, type), "chord"), index * 720);
+        });
+        patternStep = 0;
+        patternStatus.textContent = `${selectedPattern.name} を鳴らしています。`;
+      }
+
+      function playNextPatternChord() {
+        if (requestDeviceSoundCheck()) return;
+        const step = selectedPattern.steps[patternStep % selectedPattern.steps.length];
+        applyPatternStep(step);
+        patternStep += 1;
       }
 
       function spawnGhosts(notes, mode) {
@@ -555,6 +733,8 @@
 
       function setRoot(root) {
         selectedRoot = root;
+        patternBaseRoot = root;
+        patternStep = 0;
         render();
         playChord();
       }
@@ -587,8 +767,76 @@
         updateSoundSourceButtons();
       }
 
+      function renderPatterns() {
+        patternGrid.innerHTML = chordPatterns.map((pattern) => (
+          `<button type="button" data-pattern="${pattern.id}"><strong>${pattern.name}</strong><small>${pattern.label}</small></button>`
+        )).join("");
+        patternGrid.querySelectorAll("[data-pattern]").forEach((button) => {
+          button.classList.toggle("is-active", button.dataset.pattern === selectedPattern.id);
+        });
+      }
+
+      function renderSequence() {
+        sequenceGrid.innerHTML = rhythmPadData.map((pad) => (
+          `<div class="sequence-row">
+            <strong>${pad.label}</strong>
+            ${Array.from({ length: sequenceLength }, (_, index) => (
+              `<button type="button" data-sequence-pad="${pad.id}" data-sequence-step="${index}" aria-pressed="${rhythmSequence[pad.id][index]}">${index + 1}</button>`
+            )).join("")}
+          </div>`
+        )).join("");
+        updateSequenceLights();
+      }
+
+      function updateSequenceLights() {
+        document.querySelectorAll("[data-sequence-pad]").forEach((button) => {
+          const pad = button.dataset.sequencePad;
+          const step = Number(button.dataset.sequenceStep);
+          button.classList.toggle("is-on", Boolean(rhythmSequence[pad]?.[step]));
+          button.classList.toggle("is-current", sequenceRunning && step === sequenceStep);
+          button.setAttribute("aria-pressed", String(Boolean(rhythmSequence[pad]?.[step])));
+        });
+      }
+
+      function runSequenceStep() {
+        rhythmPadData.forEach((pad) => {
+          if (rhythmSequence[pad.id][sequenceStep]) playRhythmPad(pad.id);
+        });
+        updateSequenceLights();
+        sequenceStep = (sequenceStep + 1) % sequenceLength;
+      }
+
+      function stopSequence() {
+        window.clearInterval(sequenceTimer);
+        sequenceTimer = null;
+        sequenceRunning = false;
+        sequenceToggle.textContent = "スタート";
+        sequenceToggle.setAttribute("aria-pressed", "false");
+        updateSequenceLights();
+      }
+
+      function startSequence() {
+        if (requestDeviceSoundCheck()) return;
+        stopSequence();
+        sequenceRunning = true;
+        sequenceToggle.textContent = "ストップ";
+        sequenceToggle.setAttribute("aria-pressed", "true");
+        runSequenceStep();
+        const stepMs = 60000 / Number(sequenceTempo.value) / 2;
+        sequenceTimer = window.setInterval(runSequenceStep, stepMs);
+      }
+
+      function toggleSequence() {
+        if (sequenceRunning) {
+          stopSequence();
+          return;
+        }
+        startSequence();
+      }
+
       function setRole(role) {
         activeRole = roles[role] ? role : "chord";
+        if (activeRole !== "rhythm") stopSequence();
         chordPart.hidden = activeRole !== "chord";
         rhythmPart.hidden = activeRole !== "rhythm";
         leadPart.hidden = activeRole !== "lead";
@@ -654,6 +902,8 @@
         rhythmPads.innerHTML = rhythmPadData.map((pad) => (
           `<button type="button" data-rhythm="${pad.id}"><strong>${pad.label}</strong><small>${pad.hint}</small></button>`
         )).join("");
+        renderPatterns();
+        renderSequence();
 
         rootGrid.addEventListener("click", (event) => {
           const button = event.target.closest("[data-root]");
@@ -677,6 +927,32 @@
           const button = event.target.closest("[data-rhythm]");
           if (!button) return;
           playRhythmPad(button.dataset.rhythm);
+        });
+
+        patternGrid.addEventListener("click", (event) => {
+          const button = event.target.closest("[data-pattern]");
+          if (!button) return;
+          selectedPattern = chordPatterns.find((pattern) => pattern.id === button.dataset.pattern) || selectedPattern;
+          patternStep = 0;
+          renderPatterns();
+          patternStatus.textContent = `${selectedPattern.name}: ${selectedPattern.label}`;
+        });
+
+        playPatternButton.addEventListener("click", playPattern);
+        nextPatternChordButton.addEventListener("click", playNextPatternChord);
+
+        sequenceGrid.addEventListener("click", (event) => {
+          const button = event.target.closest("[data-sequence-pad]");
+          if (!button) return;
+          const pad = button.dataset.sequencePad;
+          const step = Number(button.dataset.sequenceStep);
+          rhythmSequence[pad][step] = !rhythmSequence[pad][step];
+          updateSequenceLights();
+        });
+
+        sequenceToggle.addEventListener("click", toggleSequence);
+        sequenceTempo.addEventListener("input", () => {
+          if (sequenceRunning) startSequence();
         });
 
         leadPads.addEventListener("click", (event) => {
