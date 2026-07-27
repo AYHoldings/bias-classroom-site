@@ -6,7 +6,7 @@
     <title>Lab Settings | bias</title>
     <meta name="description" content="Chord Labの設定画面モックアップ。">
     <link rel="icon" href="assets/images/mark.png">
-    <link rel="stylesheet" href="assets/styles.css?v=service-hero">
+    <link rel="stylesheet" href="assets/styles.css?v=settings-copy">
   </head>
   <body class="chord-page settings-page">
     <header class="site-header">
@@ -31,9 +31,9 @@
           <p class="lead">画面はやさしく、音は深く。</p>
         </div>
         <aside class="settings-status" aria-label="Current preset">
-          <span class="panel-label">Preset</span>
-          <strong>Kids Ghost</strong>
-          <p>やさしい音量、濃いめの残像、白鍵中心。</p>
+          <span class="panel-label">Current setup</span>
+          <strong>Family Lab</strong>
+          <p>控えめな音量、見やすい残像、白鍵中心。</p>
         </aside>
       </section>
 
@@ -41,8 +41,8 @@
         <article class="settings-card">
           <div class="settings-card-head">
             <div>
-              <p class="eyebrow">Lesson</p>
-              <h2>子どもモード</h2>
+              <p class="eyebrow">Guide</p>
+              <h2>ファミリー設定</h2>
             </div>
             <label class="switch">
               <input type="checkbox" checked>
@@ -52,7 +52,7 @@
           <label class="setting-row">
             <span>
               <strong>説明文</strong>
-              <small>むずかしい理論名を減らす</small>
+              <small>むずかしい理論名を控える</small>
             </span>
             <select>
               <option>やさしい</option>
@@ -197,7 +197,7 @@
           const switches = [...document.querySelectorAll(".switch input")];
           return {
             savedAt: new Date().toISOString(),
-            kidsMode: switches[0]?.checked ?? true,
+            familyGuide: switches[0]?.checked ?? true,
             ghostEnabled: switches[1]?.checked ?? true,
             lessonText: selects[0]?.value || "やさしい",
             quiz: selects[1]?.value || "2択",
@@ -233,7 +233,7 @@
             : "設定を反映しました。この環境では次回保存だけ使えません。";
           saveStatus.classList.add("is-saved");
           settingsShell.classList.add("is-saved");
-          if (presetName) presetName.textContent = "Saved Lab";
+          if (presetName) presetName.textContent = "Saved Setup";
 
           resetTimer = window.setTimeout(() => {
             saveButton.classList.remove("is-saved");
