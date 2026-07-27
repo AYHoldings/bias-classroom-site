@@ -6,7 +6,7 @@
     <title>Lab Settings | bias</title>
     <meta name="description" content="Chord Labの設定画面モックアップ。">
     <link rel="icon" href="assets/images/mark.png">
-    <link rel="stylesheet" href="assets/styles.css?v=settings-save">
+    <link rel="stylesheet" href="assets/styles.css?v=settings-save-2">
   </head>
   <body class="chord-page settings-page">
     <header class="site-header">
@@ -214,12 +214,23 @@
           };
         };
 
-        const showSaved = () => {
+        const saveLocally = () => {
+          try {
+            localStorage.setItem(storageKey, JSON.stringify(collectSettings()));
+          } catch (error) {
+            return false;
+          }
+          return true;
+        };
+
+        const showSaved = (isStored) => {
           window.clearTimeout(resetTimer);
           saveButton.classList.remove("is-saving");
           saveButton.classList.add("is-saved");
           saveButton.textContent = "保存しました";
-          saveStatus.textContent = "設定を保存しました。ラボへ戻って試せます。";
+          saveStatus.textContent = isStored
+            ? "設定を保存しました。ラボへ戻って試せます。"
+            : "設定を反映しました。この環境では次回保存だけ使えません。";
           saveStatus.classList.add("is-saved");
           settingsShell.classList.add("is-saved");
           if (presetName) presetName.textContent = "Saved Lab";
@@ -238,13 +249,16 @@
           saveStatus.classList.remove("is-saved");
 
           window.setTimeout(() => {
-            localStorage.setItem(storageKey, JSON.stringify(collectSettings()));
-            showSaved();
+            showSaved(saveLocally());
           }, 280);
         });
 
-        if (localStorage.getItem(storageKey)) {
-          saveStatus.textContent = "前回保存した設定があります。";
+        try {
+          if (localStorage.getItem(storageKey)) {
+            saveStatus.textContent = "前回保存した設定があります。";
+          }
+        } catch (error) {
+          saveStatus.textContent = "";
         }
       })();
     </script>
