@@ -152,6 +152,7 @@
           formalName: "Sine wave",
           code: "SINE WAVE",
           type: "sine",
+          loudness: 1.45,
           label: "倍音が少ない",
           lesson: "正弦波は倍音が少ない、いちばん素直な波形。はじめての音色に向いています。",
           path: "M0 110 C40 42 80 42 120 110 S200 178 240 110 S320 42 360 110 S440 178 480 110 S560 42 640 110"
@@ -163,6 +164,7 @@
           formalName: "Triangle wave",
           code: "TRIANGLE WAVE",
           type: "triangle",
+          loudness: 1.18,
           label: "芯がありつつ丸い",
           lesson: "三角波は正弦波より少し倍音があり、やさしさの中に芯があります。コードにもなじみます。",
           path: "M0 110 L80 42 L160 178 L240 42 L320 178 L400 42 L480 178 L560 42 L640 110"
@@ -174,6 +176,7 @@
           formalName: "Square wave",
           code: "SQUARE WAVE",
           type: "square",
+          loudness: 0.88,
           label: "はっきりした倍音",
           lesson: "矩形波は上下がはっきり切り替わる波形。奇数倍音が目立ち、ゲーム機のような存在感が出ます。",
           path: "M0 50 L80 50 L80 170 L160 170 L160 50 L240 50 L240 170 L320 170 L320 50 L400 50 L400 170 L480 170 L480 50 L560 50 L560 170 L640 170"
@@ -185,6 +188,7 @@
           formalName: "Saw wave",
           code: "SAW WAVE",
           type: "sawtooth",
+          loudness: 0.82,
           label: "倍音が多い",
           lesson: "ノコギリ波は倍音が多く、明るく強い音。シンセではSaw waveとも呼ばれ、フィルターで削ると表情が出ます。",
           path: "M0 170 L90 50 L90 170 L180 50 L180 170 L270 50 L270 170 L360 50 L360 170 L450 50 L450 170 L540 50 L540 170 L640 42"
@@ -285,7 +289,7 @@
         filter.frequency.setValueAtTime(Number(filterControl.value), start);
         filter.Q.setValueAtTime(1.2, start);
         gain.gain.setValueAtTime(0.0001, start);
-        gain.gain.linearRampToValueAtTime(0.2, start + attack);
+        gain.gain.linearRampToValueAtTime(0.2 * selectedWave.loudness, start + attack);
         gain.gain.exponentialRampToValueAtTime(0.0001, start + attack + release);
 
         oscillator.connect(filter);
