@@ -1139,6 +1139,14 @@ time {
 
 .quiz-panel {
   border-top: 1px solid var(--line);
+  outline: 0;
+  transition: background 220ms ease, box-shadow 220ms ease;
+  scroll-margin-top: 110px;
+}
+
+.quiz-panel.is-called {
+  background: linear-gradient(90deg, rgba(255, 245, 223, 0.78), rgba(220, 236, 243, 0.42));
+  box-shadow: inset 4px 0 0 rgba(199, 53, 46, 0.72);
 }
 
 .quiz-options {

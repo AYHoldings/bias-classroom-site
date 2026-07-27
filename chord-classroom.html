@@ -6,7 +6,7 @@
     <title>Chord Lab | bias</title>
     <meta name="description" content="子どもと一緒にコードを聞いて学べる、biasの小さな音楽ラボ。">
     <link rel="icon" href="assets/images/mark.png">
-    <link rel="stylesheet" href="assets/styles.css?v=settings-save-2">
+    <link rel="stylesheet" href="assets/styles.css?v=quiz-scroll">
   </head>
   <body class="chord-page">
     <header class="site-header">
@@ -104,7 +104,7 @@
         <div class="piano" id="piano"></div>
       </section>
 
-      <section class="quiz-panel" id="quizPanel" hidden>
+      <section class="quiz-panel" id="quizPanel" tabindex="-1" hidden>
         <p class="eyebrow">Listening Quiz</p>
         <h2>いま鳴ったコードはどっち？</h2>
         <div class="quiz-options" id="quizOptions"></div>
@@ -456,6 +456,12 @@
         }).join("");
         render();
         playChord();
+        window.requestAnimationFrame(() => {
+          quizPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+          quizPanel.focus({ preventScroll: true });
+          quizPanel.classList.add("is-called");
+          window.setTimeout(() => quizPanel.classList.remove("is-called"), 1200);
+        });
       }
 
       function normalizeSpeech(text) {
