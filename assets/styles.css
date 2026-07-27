@@ -759,6 +759,69 @@ time {
   border-bottom: 1px solid var(--line);
 }
 
+.ensemble-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 0.9fr);
+  gap: 18px;
+  align-items: end;
+  padding: 30px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.ensemble-panel h2 {
+  font-size: clamp(25px, 3vw, 38px);
+  line-height: 1;
+}
+
+.ensemble-panel p {
+  margin: 10px 0 0;
+  color: #4d4b46;
+  line-height: 1.65;
+}
+
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.role-grid button {
+  display: grid;
+  gap: 5px;
+  min-height: 84px;
+  border: 1px solid rgba(22, 22, 22, 0.16);
+  border-radius: 8px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.role-grid button.is-active {
+  border-color: rgba(35, 107, 100, 0.58);
+  background: #dcecf3;
+  box-shadow: 0 14px 34px rgba(35, 107, 100, 0.12);
+}
+
+.role-grid strong {
+  font-size: 17px;
+  line-height: 1.1;
+}
+
+.role-grid small,
+.part-status {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.part-status {
+  grid-column: 1 / -1;
+  margin: -4px 0 0;
+}
+
 .control-group {
   display: grid;
   align-content: start;
@@ -1184,7 +1247,8 @@ time {
 
 .keyboard-section,
 .quiz-panel,
-.tone-quest {
+.tone-quest,
+.part-panel {
   padding: clamp(48px, 8vw, 88px) 0;
 }
 
@@ -1229,6 +1293,58 @@ time {
 
 .piano-key span {
   font-size: clamp(22px, 4vw, 42px);
+}
+
+.part-panel {
+  border-top: 1px solid var(--line);
+}
+
+.pad-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.rhythm-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.lead-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.pad-grid button {
+  display: grid;
+  align-content: end;
+  gap: 8px;
+  min-height: 150px;
+  border: 1px solid rgba(22, 22, 22, 0.16);
+  border-radius: 8px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 120ms ease, box-shadow 120ms ease;
+}
+
+.pad-grid button:hover,
+.pad-grid button.is-hit {
+  border-color: rgba(199, 53, 46, 0.52);
+  background: #fff5df;
+  transform: translateY(-2px);
+  box-shadow: 0 16px 38px rgba(199, 53, 46, 0.12);
+}
+
+.pad-grid strong {
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1;
+}
+
+.pad-grid small {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 900;
 }
 
 .quiz-panel {
@@ -2146,6 +2262,7 @@ time {
   .chord-stage,
   .tone-lab,
   .entrance-hero,
+  .ensemble-panel,
   .control-band,
   .tone-control-band,
   .settings-hero,
@@ -2290,6 +2407,10 @@ time {
     padding: 18px;
     background: rgba(245, 243, 234, 0.94);
     backdrop-filter: blur(18px);
+  }
+
+  .ensemble-panel {
+    grid-template-columns: 1fr;
   }
 
   .tone-control-band {
@@ -2516,8 +2637,28 @@ time {
   .root-grid,
   .type-grid,
   .quiz-options,
+  .role-grid,
+  .rhythm-grid,
+  .lead-grid,
   .check-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ensemble-panel {
+    width: min(100%, 362px);
+    margin: 0 auto;
+    padding: 24px 0;
+  }
+
+  .role-grid button {
+    min-height: 76px;
+    padding: 12px;
+  }
+
+  .pad-grid button {
+    min-height: 118px;
+    padding: 14px;
+    touch-action: manipulation;
   }
 
   .voice-status {

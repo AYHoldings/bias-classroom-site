@@ -6,7 +6,7 @@
     <title>Chord Lab | bias</title>
     <meta name="description" content="子どもと一緒にコードを聞いて学べる、biasの小さな音楽ラボ。">
     <link rel="icon" href="assets/images/mark.png">
-    <link rel="stylesheet" href="assets/styles.css?v=mute-toggle">
+    <link rel="stylesheet" href="assets/styles.css?v=ensemble-roles">
   </head>
   <body class="chord-page">
     <header class="site-header">
@@ -75,6 +75,28 @@
           </div>
         </div>
       </section>
+      <section class="ensemble-panel" aria-label="Ensemble roles">
+        <div>
+          <p class="eyebrow">Ensemble</p>
+          <h2>スマホの役を選ぶ</h2>
+          <p>同じキーで、コード・リズム・リードを分けて遊べます。</p>
+        </div>
+        <div class="role-grid" id="roleGrid">
+          <button class="is-active" type="button" data-role="chord" aria-pressed="true">
+            <strong>コード係</strong>
+            <small>和音の土台</small>
+          </button>
+          <button type="button" data-role="rhythm" aria-pressed="false">
+            <strong>リズム係</strong>
+            <small>ビート担当</small>
+          </button>
+          <button type="button" data-role="lead" aria-pressed="false">
+            <strong>リード係</strong>
+            <small>メロディ担当</small>
+          </button>
+        </div>
+        <p class="part-status" id="partStatus" aria-live="polite">いまはコード係。和音でみんなの土台を作ります。</p>
+      </section>
       <section class="sound-source-panel" aria-label="Sound source">
         <p>音色</p>
         <div class="sound-source-switch">
@@ -101,7 +123,7 @@
       <p class="voice-status sample-status" id="sampleStatus" aria-live="polite">音色: シンセ音</p>
       <p class="voice-status audio-status" id="audioStatus" aria-live="polite">音: 出ます</p>
 
-      <section class="keyboard-section" aria-label="Piano keyboard">
+      <section class="keyboard-section role-section" id="chordPart" aria-label="Piano keyboard">
         <div class="keyboard-heading">
           <div>
             <p class="eyebrow">Try It</p>
@@ -110,6 +132,28 @@
           <p>PCキーボードは A S D F G H J でも鳴ります。</p>
         </div>
         <div class="piano" id="piano"></div>
+      </section>
+
+      <section class="part-panel role-section" id="rhythmPart" aria-label="Rhythm pads" hidden>
+        <div class="keyboard-heading">
+          <div>
+            <p class="eyebrow">Rhythm Part</p>
+            <h2>リズムを担当する</h2>
+          </div>
+          <p>4つのパッドで、みんなのテンポを作ります。</p>
+        </div>
+        <div class="pad-grid rhythm-grid" id="rhythmPads"></div>
+      </section>
+
+      <section class="part-panel role-section" id="leadPart" aria-label="Lead pads" hidden>
+        <div class="keyboard-heading">
+          <div>
+            <p class="eyebrow">Lead Part</p>
+            <h2>外しにくいメロディ</h2>
+          </div>
+          <p>今の音に合う音だけを並べています。</p>
+        </div>
+        <div class="pad-grid lead-grid" id="leadPads"></div>
       </section>
 
       <section class="quiz-panel" id="quizPanel" tabindex="-1" hidden>
@@ -226,13 +270,34 @@
       const muteLabel = document.querySelector("#muteLabel");
       const muteHint = document.querySelector("#muteHint");
       const audioStatus = document.querySelector("#audioStatus");
+      const roleGrid = document.querySelector("#roleGrid");
+      const partStatus = document.querySelector("#partStatus");
+      const chordPart = document.querySelector("#chordPart");
+      const rhythmPart = document.querySelector("#rhythmPart");
+      const leadPart = document.querySelector("#leadPart");
+      const rhythmPads = document.querySelector("#rhythmPads");
+      const leadPads = document.querySelector("#leadPads");
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       const muteStorageKey = "bias-chord-lab-muted";
+      const roleStorageKey = "bias-chord-lab-role";
+      const roles = {
+        chord: "いまはコード係。和音でみんなの土台を作ります。",
+        rhythm: "いまはリズム係。4つのパッドでビートを作ります。",
+        lead: "いまはリード係。外しにくい音だけでメロディを弾けます。"
+      };
+      const rhythmPadData = [
+        { id: "kick", label: "Kick", hint: "足" },
+        { id: "snare", label: "Snare", hint: "手" },
+        { id: "hat", label: "Hat", hint: "細かく" },
+        { id: "clap", label: "Clap", hint: "合いの手" }
+      ];
+      const leadScale = [0, 2, 4, 7, 9, 12];
       let recognition = null;
       let voiceEnabled = false;
       let sampleBuffer = null;
       let soundSource = "synth";
       let isMuted = false;
+      let activeRole = "chord";
       let sampleRecorder = null;
       let isRecordingSample = false;
       let sampleStream = null;
@@ -312,6 +377,10 @@
         return selectedType.intervals.map((interval) => selectedRoot.midi + interval);
       }
 
+      function leadNotes() {
+        return leadScale.map((interval) => selectedRoot.midi + interval);
+      }
+
       function updateMuteOutput() {
         if (!outputChain) return;
         const context = getAudioContext();
@@ -372,6 +441,77 @@
         oscillator.stop(start + duration + 0.04);
       }
 
+      function makeNoiseBuffer(context, seconds) {
+        const length = Math.max(1, Math.floor(context.sampleRate * seconds));
+        const buffer = context.createBuffer(1, length, context.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let index = 0; index < length; index += 1) {
+          data[index] = Math.random() * 2 - 1;
+        }
+        return buffer;
+      }
+
+      function playNoiseDrum(start, duration, filterType, frequency, gainValue) {
+        const context = getAudioContext();
+        const source = context.createBufferSource();
+        const filter = context.createBiquadFilter();
+        const gain = context.createGain();
+        source.buffer = makeNoiseBuffer(context, duration);
+        filter.type = filterType;
+        filter.frequency.value = frequency;
+        gain.gain.setValueAtTime(gainValue, start);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+        source.connect(filter);
+        filter.connect(gain);
+        gain.connect(getOutputChain(context).input);
+        source.start(start);
+        source.stop(start + duration);
+      }
+
+      function playKick(start) {
+        const context = getAudioContext();
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(132, start);
+        oscillator.frequency.exponentialRampToValueAtTime(46, start + 0.22);
+        gain.gain.setValueAtTime(0.7, start);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.26);
+        oscillator.connect(gain);
+        gain.connect(getOutputChain(context).input);
+        oscillator.start(start);
+        oscillator.stop(start + 0.28);
+      }
+
+      function spawnPadFlash(id) {
+        const button = document.querySelector(`[data-rhythm="${id}"]`);
+        if (!button) return;
+        button.classList.add("is-hit");
+        window.setTimeout(() => button.classList.remove("is-hit"), 170);
+      }
+
+      function playRhythmPad(id) {
+        const context = getAudioContext();
+        const start = context.currentTime + 0.01;
+        if (id === "kick") {
+          playKick(start);
+        } else if (id === "snare") {
+          playNoiseDrum(start, 0.18, "bandpass", 1600, 0.32);
+        } else if (id === "hat") {
+          playNoiseDrum(start, 0.08, "highpass", 6200, 0.17);
+        } else if (id === "clap") {
+          playNoiseDrum(start, 0.11, "bandpass", 2200, 0.22);
+          playNoiseDrum(start + 0.045, 0.12, "bandpass", 2100, 0.18);
+        }
+        spawnPadFlash(id);
+      }
+
+      function playLeadPad(midi) {
+        const context = getAudioContext();
+        playTone(midi, context.currentTime + 0.01, 0.58);
+        spawnGhosts([midi], "lead");
+      }
+
       function playChord() {
         const context = getAudioContext();
         const start = context.currentTime + 0.02;
@@ -430,7 +570,37 @@
         document.querySelectorAll("[data-key]").forEach((button) => {
           button.classList.toggle("is-active", button.dataset.key === selectedRoot.name);
         });
+        leadPads.innerHTML = leadNotes().map((midi, index) => (
+          `<button type="button" data-lead="${midi}"><strong>${noteName(midi)}</strong><small>${index + 1}</small></button>`
+        )).join("");
         updateSoundSourceButtons();
+      }
+
+      function setRole(role) {
+        activeRole = roles[role] ? role : "chord";
+        chordPart.hidden = activeRole !== "chord";
+        rhythmPart.hidden = activeRole !== "rhythm";
+        leadPart.hidden = activeRole !== "lead";
+        partStatus.textContent = roles[activeRole];
+        document.querySelectorAll("[data-role]").forEach((button) => {
+          const isActive = button.dataset.role === activeRole;
+          button.classList.toggle("is-active", isActive);
+          button.setAttribute("aria-pressed", String(isActive));
+        });
+        try {
+          localStorage.setItem(roleStorageKey, activeRole);
+        } catch (error) {
+          // 端末保存が使えない環境でも、役割切替はその場で使えるようにする。
+        }
+      }
+
+      function loadRolePreference() {
+        try {
+          activeRole = localStorage.getItem(roleStorageKey) || "chord";
+        } catch (error) {
+          activeRole = "chord";
+        }
+        setRole(activeRole);
       }
 
       function updateSoundSourceButtons() {
@@ -470,6 +640,10 @@
           `<button class="piano-key" type="button" data-key="${root.name}"><span>${root.name}</span><small>${root.key.toUpperCase()}</small></button>`
         )).join("");
 
+        rhythmPads.innerHTML = rhythmPadData.map((pad) => (
+          `<button type="button" data-rhythm="${pad.id}"><strong>${pad.label}</strong><small>${pad.hint}</small></button>`
+        )).join("");
+
         rootGrid.addEventListener("click", (event) => {
           const button = event.target.closest("[data-root]");
           if (!button) return;
@@ -486,6 +660,25 @@
           const button = event.target.closest("[data-key]");
           if (!button) return;
           setRoot(roots.find((root) => root.name === button.dataset.key));
+        });
+
+        rhythmPads.addEventListener("click", (event) => {
+          const button = event.target.closest("[data-rhythm]");
+          if (!button) return;
+          playRhythmPad(button.dataset.rhythm);
+        });
+
+        leadPads.addEventListener("click", (event) => {
+          const button = event.target.closest("[data-lead]");
+          if (!button) return;
+          playLeadPad(Number(button.dataset.lead));
+        });
+
+        roleGrid.addEventListener("click", (event) => {
+          const button = event.target.closest("[data-role]");
+          if (!button) return;
+          setRole(button.dataset.role);
+          document.querySelector(`#${button.dataset.role}Part`)?.scrollIntoView({ behavior: "smooth", block: "start" });
         });
       }
 
@@ -551,6 +744,12 @@
 
         if (command.includes("階段") || command.includes("アルペジオ") || command.includes("1音")) {
           playArp();
+        } else if (command.includes("リズム")) {
+          setRole("rhythm");
+        } else if (command.includes("リード") || command.includes("メロディ")) {
+          setRole("lead");
+        } else if (command.includes("コード係") || command.includes("和音")) {
+          setRole("chord");
         } else if (command.includes("コード") || command.includes("鳴ら")) {
           playChord();
         } else if (command.includes("クイズ")) {
@@ -744,6 +943,17 @@
 
       window.addEventListener("keydown", (event) => {
         if (event.repeat) return;
+        if (activeRole === "rhythm") {
+          const rhythmKeys = ["z", "x", "c", "v"];
+          const rhythmIndex = rhythmKeys.indexOf(event.key.toLowerCase());
+          if (rhythmIndex >= 0) playRhythmPad(rhythmPadData[rhythmIndex].id);
+          return;
+        }
+        if (activeRole === "lead") {
+          const leadIndex = Number(event.key) - 1;
+          if (leadIndex >= 0 && leadIndex < leadNotes().length) playLeadPad(leadNotes()[leadIndex]);
+          return;
+        }
         const root = roots.find((item) => item.key === event.key.toLowerCase());
         if (root) setRoot(root);
       });
@@ -752,6 +962,7 @@
       setupVoiceInput();
       loadMutePreference();
       render();
+      loadRolePreference();
       window.setTimeout(revealToneQuest, toneQuestDelay);
     </script>
   </body>
