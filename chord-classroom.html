@@ -1215,9 +1215,9 @@
         if (!correct) playChord();
       });
 
-      document.querySelector("#playChord").addEventListener("click", playChord);
+      document.querySelector("#playChord").addEventListener("click", () => playChord());
       document.querySelector("#playArp").addEventListener("click", playArp);
-      document.querySelector("#playChordTop").addEventListener("click", playChord);
+      document.querySelector("#playChordTop").addEventListener("click", () => playChord());
       document.querySelector("#playArpTop").addEventListener("click", playArp);
       document.querySelector("#quizButton").addEventListener("click", startQuiz);
       setupSampleRecorderButton();

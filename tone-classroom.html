@@ -6,7 +6,7 @@
     <title>Tone Lab | bias</title>
     <meta name="description" content="波形、明るさ、ふくらみを触って音色を学ぶ、biasの小さなシンセラボ。">
     <link rel="icon" href="assets/images/mark.png">
-    <link rel="stylesheet" href="assets/styles.css?v=ensemble-tools">
+    <link rel="stylesheet" href="assets/styles.css?v=tone-volume-slider">
   </head>
   <body class="chord-page tone-page">
     <header class="site-header">
@@ -61,6 +61,14 @@
           <label class="tone-slider-row">
             <span>Filter</span>
             <input id="filterControl" type="range" min="300" max="6800" value="2200">
+          </label>
+        </div>
+
+        <div class="tone-control-group">
+          <h2>音量</h2>
+          <label class="tone-slider-row volume-row">
+            <span>Volume <strong id="volumeValue">62%</strong></span>
+            <input id="volumeControl" type="range" min="0" max="100" value="62">
           </label>
         </div>
 
@@ -200,6 +208,8 @@
       const toneName = document.querySelector("#toneName");
       const toneLesson = document.querySelector("#toneLesson");
       const filterControl = document.querySelector("#filterControl");
+      const volumeControl = document.querySelector("#volumeControl");
+      const volumeValue = document.querySelector("#volumeValue");
       const attackControl = document.querySelector("#attackControl");
       const releaseControl = document.querySelector("#releaseControl");
       const scopeScreen = document.querySelector("#scopeScreen");
@@ -211,7 +221,22 @@
 
       function getAudioContext() {
         audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+        if (audioContext.state === "suspended") {
+          audioContext.resume();
+        }
         return audioContext;
+      }
+
+      function volumeAmount() {
+        return Number(volumeControl.value) / 100;
+      }
+
+      function updateVolumeView() {
+        const amount = volumeAmount();
+        volumeValue.textContent = `${Math.round(amount * 100)}%`;
+        volumeControl.style.setProperty("--volume-level", `${amount * 100}%`);
+        scopeScreen.style.setProperty("--volume-scale", String(0.72 + amount * 0.56));
+        if (outputChain) outputChain.input.gain.value = amount * 0.95;
       }
 
       function getOutputChain(context) {
@@ -219,7 +244,7 @@
         const input = context.createGain();
         const compressor = context.createDynamicsCompressor();
         const limiter = context.createDynamicsCompressor();
-        input.gain.value = 0.82;
+        input.gain.value = volumeAmount() * 0.95;
         compressor.threshold.value = -18;
         compressor.knee.value = 18;
         compressor.ratio.value = 3;
@@ -317,6 +342,9 @@
           playTone(Number(button.dataset.midi));
         });
 
+        volumeControl.addEventListener("input", updateVolumeView);
+        volumeControl.addEventListener("change", () => playTone(60));
+
         [filterControl, attackControl, releaseControl].forEach((control) => {
           control.addEventListener("input", () => {
             const filterPosition = (Number(filterControl.value) - 300) / 6500;
@@ -327,6 +355,7 @@
       }
 
       build();
+      updateVolumeView();
       render();
     </script>
   </body>

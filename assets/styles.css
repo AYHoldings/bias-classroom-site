@@ -1913,6 +1913,8 @@ time {
   stroke: var(--lesson);
   stroke-width: 8;
   filter: drop-shadow(0 8px 16px rgba(35, 107, 100, 0.18));
+  transform: scaleY(var(--volume-scale, 1));
+  transform-origin: center;
 }
 
 .scope-screen[data-wave="square"] .waveform-path,
@@ -1988,7 +1990,7 @@ time {
 
 .tone-control-band {
   display: grid;
-  grid-template-columns: minmax(260px, 1.2fr) repeat(2, minmax(220px, 0.9fr));
+  grid-template-columns: minmax(260px, 1.15fr) repeat(3, minmax(180px, 0.85fr));
   gap: 18px;
   padding: 18px;
   border: 1px solid rgba(217, 215, 207, 0.86);
@@ -2064,6 +2066,23 @@ time {
 .tone-slider-row input {
   width: 100%;
   accent-color: var(--lesson);
+}
+
+.volume-row span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.volume-row strong {
+  color: var(--lesson);
+  font-size: 15px;
+}
+
+.volume-row input {
+  background:
+    linear-gradient(90deg, var(--lesson) var(--volume-level, 62%), rgba(22, 22, 22, 0.12) var(--volume-level, 62%));
 }
 
 .tone-pad-section,
