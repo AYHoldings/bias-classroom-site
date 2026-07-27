@@ -6,7 +6,7 @@
     <title>Tone Lab | bias</title>
     <meta name="description" content="波形、明るさ、ふくらみを触って音色を学ぶ、biasの小さなシンセラボ。">
     <link rel="icon" href="assets/images/mark.png">
-    <link rel="stylesheet" href="assets/styles.css?v=settings-copy">
+    <link rel="stylesheet" href="assets/styles.css?v=tone-wave-copy">
   </head>
   <body class="chord-page tone-page">
     <header class="site-header">
@@ -32,14 +32,20 @@
 
         <div class="synth-scope" aria-live="polite">
           <div class="scope-screen" id="scopeScreen" aria-hidden="true">
-            <span class="scope-line scope-line-a"></span>
-            <span class="scope-line scope-line-b"></span>
+            <svg class="waveform-display" viewBox="0 0 640 220" role="img" aria-label="選択中の波形">
+              <path class="waveform-shadow" id="scopeWaveShadow" d=""></path>
+              <path class="waveform-path" id="scopeWavePath" d=""></path>
+            </svg>
+            <div class="scope-readout">
+              <span id="scopeWaveCode">SINE WAVE</span>
+              <small id="scopeWaveMeta">正弦波</small>
+            </div>
             <span class="scope-pulse" id="scopePulse"></span>
           </div>
           <div>
             <span class="panel-label">いまの音色</span>
-            <strong id="toneName">まるい波</strong>
-            <p id="toneLesson">Sineは角が少ない、やわらかい音。はじめての音色に向いています。</p>
+            <strong id="toneName">正弦波 / Sine wave</strong>
+            <p id="toneLesson">正弦波は倍音が少ない、いちばん素直な波形。はじめての音色に向いています。</p>
           </div>
         </div>
       </section>
@@ -93,7 +99,7 @@
           <article class="reading-card">
             <span>01</span>
             <h3>波の形</h3>
-            <p>角が少ない波は丸く聞こえ、角が多い波は明るく聞こえます。音色は、同じ高さの音にどんな形を持たせるかで変わります。</p>
+            <p>正弦波、三角波、矩形波、鋸歯状波は、倍音の入り方が違います。角が増えるほど音は明るく、強く感じやすくなります。</p>
           </article>
           <article class="reading-card">
             <span>02</span>
@@ -131,10 +137,50 @@
 
     <script>
       const waves = [
-        { id: "sine", name: "まるい波", type: "sine", label: "やわらかい", lesson: "Sineは角が少ない、やわらかい音。はじめての音色に向いています。" },
-        { id: "triangle", name: "三角の波", type: "triangle", label: "すこし明るい", lesson: "Triangleはやさしさの中に少し芯があります。コードにもなじみます。" },
-        { id: "square", name: "四角い波", type: "square", label: "ゲームっぽい", lesson: "Squareは角が多く、はっきりした音。ゲーム機みたいに聞こえます。" },
-        { id: "sawtooth", name: "ギザギザ波", type: "sawtooth", label: "強い", lesson: "Sawは倍音が多く、明るく強い音。フィルターで削ると表情が出ます。" }
+        {
+          id: "sine",
+          name: "正弦波 / Sine wave",
+          jpName: "正弦波",
+          formalName: "Sine wave",
+          code: "SINE WAVE",
+          type: "sine",
+          label: "倍音が少ない",
+          lesson: "正弦波は倍音が少ない、いちばん素直な波形。はじめての音色に向いています。",
+          path: "M0 110 C40 42 80 42 120 110 S200 178 240 110 S320 42 360 110 S440 178 480 110 S560 42 640 110"
+        },
+        {
+          id: "triangle",
+          name: "三角波 / Triangle wave",
+          jpName: "三角波",
+          formalName: "Triangle wave",
+          code: "TRIANGLE WAVE",
+          type: "triangle",
+          label: "芯がありつつ丸い",
+          lesson: "三角波は正弦波より少し倍音があり、やさしさの中に芯があります。コードにもなじみます。",
+          path: "M0 110 L80 42 L160 178 L240 42 L320 178 L400 42 L480 178 L560 42 L640 110"
+        },
+        {
+          id: "square",
+          name: "矩形波 / Square wave",
+          jpName: "矩形波",
+          formalName: "Square wave",
+          code: "SQUARE WAVE",
+          type: "square",
+          label: "はっきりした倍音",
+          lesson: "矩形波は上下がはっきり切り替わる波形。奇数倍音が目立ち、ゲーム機のような存在感が出ます。",
+          path: "M0 50 L80 50 L80 170 L160 170 L160 50 L240 50 L240 170 L320 170 L320 50 L400 50 L400 170 L480 170 L480 50 L560 50 L560 170 L640 170"
+        },
+        {
+          id: "sawtooth",
+          name: "鋸歯状波 / Sawtooth wave",
+          jpName: "鋸歯状波",
+          formalName: "Sawtooth wave",
+          code: "SAWTOOTH WAVE",
+          type: "sawtooth",
+          label: "倍音が多い",
+          lesson: "鋸歯状波は倍音が多く、明るく強い音。フィルターで削ると表情が出ます。",
+          path: "M0 170 L90 50 L90 170 L180 50 L180 170 L270 50 L270 170 L360 50 L360 170 L450 50 L450 170 L540 50 L540 170 L640 42"
+        }
       ];
 
       const notes = [
@@ -158,6 +204,10 @@
       const releaseControl = document.querySelector("#releaseControl");
       const scopeScreen = document.querySelector("#scopeScreen");
       const scopePulse = document.querySelector("#scopePulse");
+      const scopeWavePath = document.querySelector("#scopeWavePath");
+      const scopeWaveShadow = document.querySelector("#scopeWaveShadow");
+      const scopeWaveCode = document.querySelector("#scopeWaveCode");
+      const scopeWaveMeta = document.querySelector("#scopeWaveMeta");
 
       function getAudioContext() {
         audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
@@ -234,6 +284,10 @@
         toneName.textContent = selectedWave.name;
         toneLesson.textContent = selectedWave.lesson;
         scopeScreen.dataset.wave = selectedWave.id;
+        scopeWavePath.setAttribute("d", selectedWave.path);
+        scopeWaveShadow.setAttribute("d", selectedWave.path);
+        scopeWaveCode.textContent = selectedWave.code;
+        scopeWaveMeta.textContent = selectedWave.jpName;
         document.querySelectorAll("[data-wave]").forEach((button) => {
           button.classList.toggle("is-active", button.dataset.wave === selectedWave.id);
         });
@@ -241,7 +295,7 @@
 
       function build() {
         waveGrid.innerHTML = waves.map((wave) => (
-          `<button type="button" data-wave="${wave.id}"><span>${wave.name}</span><small>${wave.label}</small></button>`
+          `<button type="button" data-wave="${wave.id}"><span>${wave.jpName}</span><strong>${wave.formalName}</strong><small>${wave.label}</small></button>`
         )).join("");
 
         tonePads.innerHTML = notes.map((note) => (
