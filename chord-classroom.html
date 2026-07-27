@@ -419,6 +419,9 @@
 
       function getAudioContext() {
         audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+        if (audioContext.state === "suspended") {
+          audioContext.resume();
+        }
         return audioContext;
       }
 
@@ -541,6 +544,10 @@
 
       function requestDeviceSoundCheck() {
         if (deviceSoundReady) return false;
+        if (!isAppleMobileDevice()) {
+          setDeviceSoundReady(true);
+          return false;
+        }
         audioStatus.textContent = isAppleMobileDevice()
           ? "音: 先にiPhone本体の消音スイッチを確認してください"
           : "音: 先にブラウザ音声を有効にしてください";
@@ -1016,7 +1023,9 @@
           ["maj7", ["maj7", "メジャーセブン", "きらきら"]],
           ["min7", ["min7", "マイナーセブン", "夜"]],
           ["sus4", ["sus4", "サスフォー", "待ってる"]],
-          ["add9", ["add9", "アドナイン", "広い"]]
+          ["add9", ["add9", "アドナイン", "広い"]],
+          ["7th", ["7th", "セブンス", "ブルース"]],
+          ["dim", ["dim", "ディミニッシュ", "あやしい"]]
         ];
 
         const rootMatch = rootAliases.find(([, words]) => words.some((word) => command.includes(word)));
