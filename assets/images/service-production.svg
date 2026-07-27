@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" role="img" aria-labelledby="title desc">
+  <title id="title">Music production service artwork</title>
+  <desc id="desc">A minimal production image with sequencer blocks and level meters.</desc>
+  <rect width="900" height="900" fill="#faf7ec"/>
+  <g stroke="#e2dac6" stroke-width="2">
+    <path d="M0 75h900M0 150h900M0 225h900M0 300h900M0 375h900M0 450h900M0 525h900M0 600h900M0 675h900M0 750h900"/>
+    <path d="M75 0v900M150 0v900M225 0v900M300 0v900M375 0v900M450 0v900M525 0v900M600 0v900M675 0v900M750 0v900M825 0v900"/>
+  </g>
+  <g transform="translate(104 126)">
+    <rect width="692" height="552" rx="28" fill="#fff" opacity=".72" stroke="#161616" stroke-opacity=".13" stroke-width="4"/>
+    <g fill="#161616">
+      <rect x="46" y="54" width="54" height="54"/>
+      <rect x="120" y="54" width="54" height="94"/>
+      <rect x="194" y="54" width="54" height="74"/>
+      <rect x="268" y="54" width="146" height="54"/>
+    </g>
+    <g fill="#236b64">
+      <rect x="48" y="204" width="116" height="82" rx="10"/>
+      <rect x="190" y="204" width="186" height="82" rx="10"/>
+      <rect x="418" y="204" width="96" height="82" rx="10"/>
+      <rect x="538" y="204" width="82" height="82" rx="10"/>
+      <rect x="48" y="322" width="202" height="82" rx="10"/>
+      <rect x="282" y="322" width="108" height="82" rx="10"/>
+      <rect x="424" y="322" width="196" height="82" rx="10"/>
+    </g>
+    <rect x="48" y="454" width="572" height="16" rx="8" fill="#d9d4c9"/>
+    <rect x="48" y="454" width="332" height="16" rx="8" fill="#c7352e"/>
+  </g>
+  <text x="104" y="742" fill="#161616" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="800">MUSIC PRODUCTION</text>
+</svg>

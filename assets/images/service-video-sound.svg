@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" role="img" aria-labelledby="title desc">
+  <title id="title">Sound and video service artwork</title>
+  <desc id="desc">A minimal image with video frame, timeline, and audio markers.</desc>
+  <rect width="900" height="900" fill="#f3f7f7"/>
+  <g stroke="#d4d9d7" stroke-width="2">
+    <path d="M0 120h900M0 240h900M0 360h900M0 480h900M0 600h900M0 720h900"/>
+    <path d="M120 0v900M240 0v900M360 0v900M480 0v900M600 0v900M720 0v900"/>
+  </g>
+  <rect x="94" y="104" width="712" height="498" rx="26" fill="#161616"/>
+  <rect x="126" y="136" width="648" height="434" rx="18" fill="#f8f6ef"/>
+  <path d="M370 294l178 100-178 100z" fill="#c7352e"/>
+  <g fill="#236b64" opacity=".95">
+    <rect x="132" y="638" width="136" height="54" rx="8"/>
+    <rect x="284" y="638" width="70" height="54" rx="8"/>
+    <rect x="370" y="638" width="188" height="54" rx="8"/>
+    <rect x="574" y="638" width="92" height="54" rx="8"/>
+    <rect x="682" y="638" width="86" height="54" rx="8"/>
+  </g>
+  <g fill="#161616">
+    <circle cx="160" cy="742" r="12"/>
+    <circle cx="216" cy="742" r="12"/>
+    <circle cx="272" cy="742" r="12"/>
+    <circle cx="328" cy="742" r="12"/>
+    <circle cx="384" cy="742" r="12"/>
+    <circle cx="440" cy="742" r="12"/>
+    <circle cx="496" cy="742" r="12"/>
+    <circle cx="552" cy="742" r="12"/>
+    <circle cx="608" cy="742" r="12"/>
+    <circle cx="664" cy="742" r="12"/>
+    <circle cx="720" cy="742" r="12"/>
+  </g>
+  <text x="128" y="806" fill="#161616" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="800">SOUND + VIDEO</text>
+</svg>

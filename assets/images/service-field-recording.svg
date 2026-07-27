@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" role="img" aria-labelledby="title desc">
+  <title id="title">Field recording service artwork</title>
+  <desc id="desc">A minimal field recording image with microphone, rings, and waveform dots.</desc>
+  <rect width="900" height="900" fill="#f7f5ee"/>
+  <circle cx="450" cy="376" r="286" fill="#dcecf3"/>
+  <circle cx="450" cy="376" r="218" fill="#f7f5ee"/>
+  <circle cx="450" cy="376" r="146" fill="#dcecf3"/>
+  <g fill="none" stroke="#236b64" stroke-width="18" stroke-linecap="round">
+    <rect x="380" y="194" width="140" height="272" rx="70"/>
+    <path d="M314 348c0 86 52 154 136 154s136-68 136-154"/>
+    <path d="M450 502v108"/>
+    <path d="M354 610h192"/>
+  </g>
+  <g fill="#c7352e">
+    <circle cx="168" cy="236" r="20"/>
+    <circle cx="230" cy="604" r="14"/>
+    <circle cx="720" cy="270" r="18"/>
+    <circle cx="692" cy="616" r="24"/>
+  </g>
+  <g fill="#161616">
+    <rect x="118" y="118" width="46" height="46"/>
+    <rect x="180" y="118" width="46" height="88"/>
+    <rect x="242" y="118" width="46" height="64"/>
+    <rect x="304" y="118" width="142" height="46"/>
+  </g>
+  <g fill="#236b64">
+    <circle cx="238" cy="736" r="10"/>
+    <circle cx="286" cy="720" r="10"/>
+    <circle cx="334" cy="748" r="10"/>
+    <circle cx="382" cy="704" r="10"/>
+    <circle cx="430" cy="736" r="10"/>
+    <circle cx="478" cy="718" r="10"/>
+    <circle cx="526" cy="754" r="10"/>
+    <circle cx="574" cy="708" r="10"/>
+    <circle cx="622" cy="734" r="10"/>
+  </g>
+  <text x="116" y="760" fill="#161616" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="800">FIELD RECORDING</text>
+</svg>

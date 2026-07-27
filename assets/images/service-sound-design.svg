@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" role="img" aria-labelledby="title desc">
+  <title id="title">Sound design service artwork</title>
+  <desc id="desc">A minimal sound design image with waveform, grid, and faders.</desc>
+  <rect width="900" height="900" fill="#f7f5ee"/>
+  <path d="M0 0h900v900H0z" fill="#f7f5ee"/>
+  <g stroke="#d8d4c8" stroke-width="2" opacity=".85">
+    <path d="M90 0v900M180 0v900M270 0v900M360 0v900M450 0v900M540 0v900M630 0v900M720 0v900M810 0v900"/>
+    <path d="M0 90h900M0 180h900M0 270h900M0 360h900M0 450h900M0 540h900M0 630h900M0 720h900M0 810h900"/>
+  </g>
+  <rect x="86" y="106" width="728" height="688" rx="28" fill="#fff" opacity=".64" stroke="#161616" stroke-opacity=".13" stroke-width="4"/>
+  <g fill="none" stroke="#236b64" stroke-linecap="round" stroke-width="18">
+    <path d="M132 450c34 0 34-188 68-188s34 376 68 376 34-246 68-246 34 116 68 116 34-300 68-300 34 484 68 484 34-184 68-184 34 92 68 92 34-246 68-246"/>
+  </g>
+  <g fill="#161616">
+    <rect x="126" y="126" width="46" height="46"/>
+    <rect x="188" y="126" width="46" height="86"/>
+    <rect x="250" y="126" width="46" height="62"/>
+    <rect x="312" y="126" width="142" height="46"/>
+  </g>
+  <g transform="translate(142 676)">
+    <rect width="616" height="72" rx="36" fill="#dcecf3"/>
+    <circle cx="126" cy="36" r="22" fill="#236b64"/>
+    <circle cx="308" cy="36" r="22" fill="#c7352e"/>
+    <circle cx="488" cy="36" r="22" fill="#161616" opacity=".72"/>
+  </g>
+  <text x="132" y="742" fill="#161616" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="800">SOUND DESIGN</text>
+</svg>
