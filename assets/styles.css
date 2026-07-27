@@ -1469,6 +1469,7 @@ time {
 }
 
 .tone-pad-section,
+.reading-room,
 .tone-route {
   padding: clamp(48px, 8vw, 88px) 0;
 }
@@ -1495,6 +1496,76 @@ time {
   justify-content: space-between;
   gap: 24px;
   border-top: 1px solid var(--line);
+}
+
+.reading-room {
+  border-top: 1px solid var(--line);
+}
+
+.reading-room .section-heading {
+  margin-bottom: 26px;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.reading-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.reading-card {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  min-height: 240px;
+  border: 1px solid rgba(22, 22, 22, 0.12);
+  border-radius: 8px;
+  padding: clamp(18px, 2.5vw, 26px);
+  background: rgba(255, 255, 255, 0.66);
+}
+
+.reading-card span {
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.reading-card p {
+  margin-bottom: 0;
+  color: #4d4b46;
+  line-height: 1.8;
+}
+
+.reference-note {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 18px;
+  align-items: center;
+  margin: -36px 0 74px;
+  border-top: 1px solid var(--line);
+  padding-top: 18px;
+  color: var(--muted);
+}
+
+.reference-note .panel-label {
+  grid-column: 1 / -1;
+}
+
+.reference-note p {
+  margin: 0;
+  line-height: 1.7;
+}
+
+.reference-note a {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 9px 13px;
+  background: rgba(255, 255, 255, 0.58);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
 }
 
 .settings-hero {
@@ -1993,6 +2064,15 @@ time {
     flex-direction: column;
   }
 
+  .reading-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .reference-note {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
   .piano {
     min-height: 160px;
   }
@@ -2235,6 +2315,7 @@ time {
   }
 
   .tone-pad-section,
+  .reading-room,
   .tone-route {
     padding: 34px 0 48px;
   }
