@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Chord Settings | bias</title>
+    <title>Lab Settings | bias</title>
     <meta name="description" content="Chord Labの設定画面モックアップ。">
     <link rel="icon" href="assets/images/mark.png">
-    <link rel="stylesheet" href="assets/styles.css?v=lab-name">
+    <link rel="stylesheet" href="assets/styles.css?v=settings-save">
   </head>
   <body class="chord-page settings-page">
     <header class="site-header">
@@ -175,9 +175,78 @@
       </section>
 
       <div class="settings-actions">
+        <p class="settings-save-status" id="settingsSaveStatus" aria-live="polite"></p>
         <a class="text-link" href="chord-classroom.html">ラボへ戻る</a>
-        <button class="action-button" type="button">設定を保存</button>
+        <button class="action-button" id="saveSettings" type="button">設定を保存</button>
       </div>
     </main>
+    <script>
+      (() => {
+        const storageKey = "bias-lab-settings-v1";
+        const saveButton = document.querySelector("#saveSettings");
+        const saveStatus = document.querySelector("#settingsSaveStatus");
+        const settingsShell = document.querySelector(".settings-shell");
+        const presetName = document.querySelector(".settings-status strong");
+        let resetTimer;
+
+        const getText = (element) => element?.textContent.trim() || "";
+
+        const collectSettings = () => {
+          const selects = [...document.querySelectorAll(".setting-row select")];
+          const sliders = [...document.querySelectorAll(".slider-row input")];
+          const switches = [...document.querySelectorAll(".switch input")];
+          return {
+            savedAt: new Date().toISOString(),
+            kidsMode: switches[0]?.checked ?? true,
+            ghostEnabled: switches[1]?.checked ?? true,
+            lessonText: selects[0]?.value || "やさしい",
+            quiz: selects[1]?.value || "2択",
+            waveform: selects[2]?.value || "Triangle",
+            volume: sliders[0]?.value || "42",
+            release: sliders[1]?.value || "68",
+            ghostDensity: sliders[2]?.value || "72",
+            ghostTime: sliders[3]?.value || "58",
+            chords: [...document.querySelectorAll(".check-grid label")].map((label) => ({
+              name: getText(label).replace(/\s+/g, " "),
+              enabled: label.querySelector("input")?.checked ?? false,
+            })),
+            output: getText(document.querySelector("input[name='output']:checked")?.closest("label")),
+          };
+        };
+
+        const showSaved = () => {
+          window.clearTimeout(resetTimer);
+          saveButton.classList.remove("is-saving");
+          saveButton.classList.add("is-saved");
+          saveButton.textContent = "保存しました";
+          saveStatus.textContent = "設定を保存しました。ラボへ戻って試せます。";
+          saveStatus.classList.add("is-saved");
+          settingsShell.classList.add("is-saved");
+          if (presetName) presetName.textContent = "Saved Lab";
+
+          resetTimer = window.setTimeout(() => {
+            saveButton.classList.remove("is-saved");
+            saveButton.textContent = "設定を保存";
+            settingsShell.classList.remove("is-saved");
+          }, 2200);
+        };
+
+        saveButton?.addEventListener("click", () => {
+          saveButton.classList.add("is-saving");
+          saveButton.textContent = "保存中...";
+          saveStatus.textContent = "保存しています...";
+          saveStatus.classList.remove("is-saved");
+
+          window.setTimeout(() => {
+            localStorage.setItem(storageKey, JSON.stringify(collectSettings()));
+            showSaved();
+          }, 280);
+        });
+
+        if (localStorage.getItem(storageKey)) {
+          saveStatus.textContent = "前回保存した設定があります。";
+        }
+      })();
+    </script>
   </body>
 </html>
