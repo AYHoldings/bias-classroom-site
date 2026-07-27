@@ -6,7 +6,7 @@
     <title>Lab Settings | bias</title>
     <meta name="description" content="Chord Labの設定画面モックアップ。">
     <link rel="icon" href="assets/images/mark.png">
-    <link rel="stylesheet" href="assets/styles.css?v=tone-wave-copy">
+    <link rel="stylesheet" href="assets/styles.css?v=settings-no-status">
   </head>
   <body class="chord-page settings-page">
     <header class="site-header">
@@ -30,11 +30,6 @@
           <h1>Chord <span>Lab</span><span>Settings</span></h1>
           <p class="lead">画面はやさしく、音は深く。</p>
         </div>
-        <aside class="settings-status" aria-label="Current settings">
-          <span class="panel-label">Current settings</span>
-          <strong>標準設定</strong>
-          <p>控えめな音量、見やすい表示、白鍵中心。</p>
-        </aside>
       </section>
 
       <section class="settings-grid" aria-label="Chord Lab settings">
@@ -186,7 +181,6 @@
         const saveButton = document.querySelector("#saveSettings");
         const saveStatus = document.querySelector("#settingsSaveStatus");
         const settingsShell = document.querySelector(".settings-shell");
-        const presetName = document.querySelector(".settings-status strong");
         let resetTimer;
 
         const getText = (element) => element?.textContent.trim() || "";
@@ -233,7 +227,6 @@
             : "設定を反映しました。この環境では次回保存だけ使えません。";
           saveStatus.classList.add("is-saved");
           settingsShell.classList.add("is-saved");
-          if (presetName) presetName.textContent = "保存済み";
 
           resetTimer = window.setTimeout(() => {
             saveButton.classList.remove("is-saved");

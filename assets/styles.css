@@ -1843,7 +1843,7 @@ time {
 
 .settings-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+  grid-template-columns: minmax(0, 1fr);
   gap: clamp(28px, 6vw, 72px);
   align-items: end;
   padding-bottom: clamp(34px, 6vw, 70px);
@@ -1867,36 +1867,6 @@ time {
 .settings-hero .lead {
   max-width: 820px;
   overflow-wrap: anywhere;
-}
-
-.settings-status {
-  border: 1px solid rgba(22, 22, 22, 0.12);
-  border-radius: 8px;
-  padding: 24px;
-  background: rgba(255, 255, 255, 0.68);
-  box-shadow: 0 20px 64px rgba(22, 22, 22, 0.07);
-  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
-}
-
-.settings-status strong {
-  display: block;
-  color: var(--lesson);
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 38px;
-  font-weight: 400;
-  line-height: 1;
-}
-
-.settings-status p {
-  margin: 16px 0 0;
-  color: #4d4b46;
-  line-height: 1.7;
-}
-
-.settings-shell.is-saved .settings-status {
-  border-color: rgba(35, 107, 100, 0.42);
-  box-shadow: 0 24px 74px rgba(35, 107, 100, 0.16);
-  transform: translateY(-2px);
 }
 
 .settings-grid {
@@ -2900,8 +2870,7 @@ time {
     font-size: 32px;
   }
 
-  .settings-card,
-  .settings-status {
+  .settings-card {
     padding: 20px;
   }
 
