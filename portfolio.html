@@ -9,7 +9,7 @@
     <meta property="og:description" content="sound design / music production / web audio prototype">
     <meta property="og:type" content="website">
     <link rel="icon" href="assets/images/mark.png">
-    <link rel="stylesheet" href="assets/styles.css?v=settings-no-status">
+    <link rel="stylesheet" href="assets/styles.css?v=portfolio-sound-fade">
   </head>
   <body class="portfolio-page">
     <header class="site-header">
@@ -102,10 +102,124 @@
           <a href="https://twitter.com/biasrecords" target="_blank" rel="noreferrer">X</a>
         </div>
       </section>
+
+      <aside class="portfolio-ambient-player" id="portfolioAmbientPlayer" aria-label="SoundCloud player">
+        <div class="ambient-player-meta">
+          <span>recent</span>
+          <strong>SoundCloud</strong>
+          <a href="https://soundcloud.com/user-512796427/sets/recent" target="_blank" rel="noreferrer">playlist</a>
+        </div>
+        <iframe
+          id="portfolioSoundCloud"
+          title="SoundCloud recent playlist"
+          width="100%"
+          height="120"
+          scrolling="no"
+          frameborder="no"
+          allow="autoplay"
+          src="https://w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Fuser-512796427%2Fsets%2Frecent&color=%23236b64&auto_play=false&start_track=0&single_active=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false&visual=false"
+        ></iframe>
+        <button class="ambient-play-button" id="ambientPlayButton" type="button">play</button>
+      </aside>
     </main>
 
     <footer class="footer">
       <a href="index.html">© akihiro yokotani / bias.</a>
     </footer>
+    <script src="https://w.soundcloud.com/player/api.js"></script>
+    <script>
+      (() => {
+        const playerShell = document.querySelector("#portfolioAmbientPlayer");
+        const iframe = document.querySelector("#portfolioSoundCloud");
+        const playButton = document.querySelector("#ambientPlayButton");
+        if (!playerShell || !iframe) return;
+
+        const delayMs = 15000;
+        const fadeMs = 20000;
+        const maxVolume = 60;
+        let widget;
+        let fadeFrame;
+        let fadeStarted = false;
+        let hasFinished = false;
+
+        const loadWidget = () => {
+          if (!window.SC?.Widget) return null;
+          widget ||= SC.Widget(iframe);
+          return widget;
+        };
+
+        const fadeIn = () => {
+          if (fadeStarted || hasFinished || !widget) return;
+          fadeStarted = true;
+          const startedAt = performance.now();
+          const step = (now) => {
+            const progress = Math.min((now - startedAt) / fadeMs, 1);
+            widget.setVolume(Math.round(progress * maxVolume));
+            if (progress < 1) {
+              fadeFrame = window.requestAnimationFrame(step);
+            }
+          };
+          window.cancelAnimationFrame(fadeFrame);
+          fadeFrame = window.requestAnimationFrame(step);
+        };
+
+        const stopAfterFirstTrack = () => {
+          if (hasFinished || !widget) return;
+          hasFinished = true;
+          window.cancelAnimationFrame(fadeFrame);
+          widget.setVolume(0);
+          widget.pause();
+          widget.skip(0);
+          widget.seekTo(0);
+          playButton.hidden = true;
+          playerShell.classList.add("is-finished");
+        };
+
+        const startAmbient = () => {
+          if (hasFinished) return;
+          playerShell.classList.add("is-visible");
+          const currentWidget = loadWidget();
+          if (!currentWidget) {
+            playButton.hidden = false;
+            return;
+          }
+
+          currentWidget.bind(SC.Widget.Events.READY, () => {
+            currentWidget.skip(0);
+            currentWidget.setVolume(0);
+            currentWidget.bind(SC.Widget.Events.FINISH, stopAfterFirstTrack);
+            currentWidget.bind(SC.Widget.Events.PLAY_PROGRESS, (progress) => {
+              if (progress?.relativePosition >= 0.995) stopAfterFirstTrack();
+            });
+            currentWidget.play();
+            window.setTimeout(() => {
+              currentWidget.isPaused((paused) => {
+                if (paused) {
+                  playerShell.classList.add("needs-tap");
+                  playButton.hidden = false;
+                  return;
+                }
+                fadeIn();
+              });
+            }, 1200);
+          });
+        };
+
+        playButton.hidden = true;
+        playButton.addEventListener("click", () => {
+          if (hasFinished) return;
+          const currentWidget = loadWidget();
+          if (!currentWidget) return;
+          currentWidget.setVolume(0);
+          currentWidget.play();
+          playerShell.classList.remove("needs-tap");
+          playButton.hidden = true;
+          fadeStarted = false;
+          fadeIn();
+        });
+
+        window.setTimeout(startAmbient, delayMs);
+      })();
+    </script>
   </body>
 </html>

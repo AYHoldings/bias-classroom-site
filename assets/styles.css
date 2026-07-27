@@ -568,6 +568,107 @@ time {
   border-top: 1px solid var(--line);
 }
 
+.portfolio-ambient-player {
+  position: fixed;
+  left: clamp(14px, 4vw, 34px);
+  bottom: clamp(12px, 3vw, 22px);
+  z-index: 30;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  width: min(228px, calc(100% - 28px));
+  overflow: hidden;
+  border: 1px solid rgba(22, 22, 22, 0.14);
+  border-radius: 8px;
+  background: rgba(246, 245, 239, 0.86);
+  box-shadow: 0 16px 52px rgba(22, 22, 22, 0.13);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(18px);
+  transition: opacity 900ms ease, transform 900ms ease;
+}
+
+.portfolio-ambient-player.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.ambient-player-meta {
+  display: grid;
+  gap: 5px;
+  padding: 14px 16px;
+}
+
+.ambient-player-meta span {
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.ambient-player-meta strong {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.ambient-player-meta a {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.portfolio-ambient-player iframe {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ambient-play-button {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  min-width: 74px;
+  border: 1px solid rgba(22, 22, 22, 0.16);
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: var(--lesson);
+  color: #fff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.portfolio-ambient-player.needs-tap .ambient-play-button {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.portfolio-ambient-player.is-finished {
+  opacity: 0.46;
+  pointer-events: none;
+}
+
+@media (max-width: 700px) {
+  .portfolio-ambient-player {
+    width: min(190px, calc(100% - 20px));
+    left: 10px;
+    bottom: 10px;
+  }
+
+  .ambient-player-meta {
+    padding: 11px 13px;
+  }
+
+  .ambient-player-meta strong {
+    font-size: 16px;
+  }
+}
+
 .socials {
   display: flex;
   flex-wrap: wrap;
