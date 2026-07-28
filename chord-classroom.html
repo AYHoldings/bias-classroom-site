@@ -6,7 +6,7 @@
     <title>Chord Lab | bias</title>
     <meta name="description" content="子どもと一緒にコードを聞いて学べる、biasの小さな音楽ラボ。">
     <link rel="icon" href="assets/images/mark.png">
-    <link rel="stylesheet" href="assets/styles.css?v=ensemble-tools">
+    <link rel="stylesheet" href="assets/styles.css?v=lead-instruments">
   </head>
   <body class="chord-page">
     <header class="site-header">
@@ -179,18 +179,28 @@
           </div>
           <p>今の音に合う音だけを並べています。</p>
         </div>
-        <div class="part-tool-panel lead-filter-panel">
+        <div class="part-tool-panel lead-player-panel">
           <div>
-            <p class="eyebrow">Filter</p>
-            <h3>リードの音を削る</h3>
+            <p class="eyebrow">Lead Sound</p>
+            <h3>楽器を選ぶ</h3>
           </div>
-          <label class="tone-slider-row">
-            <span>明るさ</span>
-            <input id="leadFilterCutoff" type="range" min="500" max="7200" value="3600">
-          </label>
-          <label class="tone-slider-row">
-            <span>クセ</span>
-            <input id="leadFilterResonance" type="range" min="0" max="18" value="4">
+          <div class="lead-instrument-grid" id="leadInstrumentGrid" aria-label="Lead instrument">
+            <button class="is-active" type="button" data-lead-instrument="synth" aria-pressed="true">
+              <strong>シンセ</strong>
+              <small>太くて明るい</small>
+            </button>
+            <button type="button" data-lead-instrument="guitar" aria-pressed="false">
+              <strong>ギター</strong>
+              <small>短くはじく</small>
+            </button>
+            <button type="button" data-lead-instrument="flute" aria-pressed="false">
+              <strong>フルート</strong>
+              <small>丸くのびる</small>
+            </button>
+          </div>
+          <label class="tone-slider-row lead-volume-row">
+            <span>Volume <b id="leadVolumeValue">85%</b></span>
+            <input id="leadVolume" type="range" min="0" max="100" value="85">
           </label>
         </div>
         <div class="pad-grid lead-grid" id="leadPads"></div>
@@ -339,11 +349,14 @@
       const sequenceGrid = document.querySelector("#sequenceGrid");
       const sequenceToggle = document.querySelector("#sequenceToggle");
       const sequenceTempo = document.querySelector("#sequenceTempo");
-      const leadFilterCutoff = document.querySelector("#leadFilterCutoff");
-      const leadFilterResonance = document.querySelector("#leadFilterResonance");
+      const leadInstrumentGrid = document.querySelector("#leadInstrumentGrid");
+      const leadVolume = document.querySelector("#leadVolume");
+      const leadVolumeValue = document.querySelector("#leadVolumeValue");
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       const soundReadyStorageKey = "bias-chord-lab-sound-ready";
       const roleStorageKey = "bias-chord-lab-role";
+      const leadInstrumentStorageKey = "bias-chord-lab-lead-instrument";
+      const leadVolumeStorageKey = "bias-chord-lab-lead-volume";
       const roles = {
         chord: "いまはコード係。和音でみんなの土台を作ります。",
         rhythm: "いまはリズム係。4つのパッドでビートを作ります。",
@@ -355,6 +368,36 @@
         { id: "hat", label: "Hat", hint: "細かく" },
         { id: "clap", label: "Clap", hint: "合いの手" }
       ];
+      const leadInstruments = {
+        synth: {
+          label: "シンセ",
+          oscillator: "square",
+          duration: 0.58,
+          gain: 0.18,
+          attack: 0.012,
+          filterFrequency: 5200,
+          filterQ: 1.4
+        },
+        guitar: {
+          label: "ギター",
+          oscillator: "sawtooth",
+          duration: 0.42,
+          gain: 0.2,
+          attack: 0.006,
+          decay: true,
+          filterFrequency: 2600,
+          filterQ: 1.1
+        },
+        flute: {
+          label: "フルート",
+          oscillator: "sine",
+          duration: 0.78,
+          gain: 0.23,
+          attack: 0.04,
+          filterFrequency: 6400,
+          filterQ: 0.7
+        }
+      };
       const chordPatterns = [
         {
           id: "pop",
@@ -397,6 +440,7 @@
       let soundSource = "synth";
       let deviceSoundReady = false;
       let activeRole = "chord";
+      let selectedLeadInstrument = leadInstruments.synth;
       let selectedPattern = chordPatterns[0];
       let patternBaseRoot = roots[0];
       let patternStep = 0;
@@ -561,8 +605,13 @@
         const context = getAudioContext();
         const gain = context.createGain();
         const filter = options.filterFrequency ? context.createBiquadFilter() : null;
+        const peakGain = Math.max(options.gainValue ?? 0.14, 0.0001);
+        const attack = options.attack || 0.025;
         gain.gain.setValueAtTime(0.0001, start);
-        gain.gain.exponentialRampToValueAtTime(0.14, start + 0.025);
+        gain.gain.exponentialRampToValueAtTime(peakGain, start + attack);
+        if (options.decay) {
+          gain.gain.exponentialRampToValueAtTime(peakGain * 0.42, start + Math.min(duration * 0.46, 0.22));
+        }
         gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
         if (filter) {
           filter.type = "lowpass";
@@ -573,7 +622,7 @@
         gain.connect(getOutputChain(context).input);
         const destination = filter || gain;
 
-        if (soundSource === "sample" && sampleBuffer) {
+        if (options.useSample !== false && soundSource === "sample" && sampleBuffer) {
           const source = context.createBufferSource();
           source.buffer = sampleBuffer;
           source.playbackRate.setValueAtTime(Math.pow(2, (midi - 60) / 12), start);
@@ -584,7 +633,7 @@
         }
 
         const oscillator = context.createOscillator();
-        oscillator.type = "triangle";
+        oscillator.type = options.oscillatorType || "triangle";
         oscillator.frequency.setValueAtTime(midiToFrequency(midi), start);
         oscillator.connect(destination);
         oscillator.start(start);
@@ -660,9 +709,16 @@
       function playLeadPad(midi) {
         if (requestDeviceSoundCheck()) return;
         const context = getAudioContext();
-        playTone(midi, context.currentTime + 0.01, 0.62, {
-          filterFrequency: Number(leadFilterCutoff.value),
-          filterQ: Number(leadFilterResonance.value) || 1
+        const instrument = selectedLeadInstrument;
+        const volume = Number(leadVolume.value) / 100;
+        playTone(midi, context.currentTime + 0.01, instrument.duration, {
+          useSample: false,
+          oscillatorType: instrument.oscillator,
+          gainValue: instrument.gain * volume,
+          attack: instrument.attack,
+          decay: instrument.decay,
+          filterFrequency: instrument.filterFrequency,
+          filterQ: instrument.filterQ
         });
         spawnGhosts([midi], "lead");
       }
@@ -803,6 +859,39 @@
           button.classList.toggle("is-current", sequenceRunning && step === sequenceStep);
           button.setAttribute("aria-pressed", String(Boolean(rhythmSequence[pad]?.[step])));
         });
+      }
+
+      function updateLeadPlayerControls() {
+        const instrumentId = Object.entries(leadInstruments).find(([, instrument]) => instrument === selectedLeadInstrument)?.[0] || "synth";
+        leadInstrumentGrid.querySelectorAll("[data-lead-instrument]").forEach((button) => {
+          const isActive = button.dataset.leadInstrument === instrumentId;
+          button.classList.toggle("is-active", isActive);
+          button.setAttribute("aria-pressed", String(isActive));
+        });
+        leadVolumeValue.textContent = `${leadVolume.value}%`;
+      }
+
+      function setLeadInstrument(instrumentId, shouldPreview = false) {
+        selectedLeadInstrument = leadInstruments[instrumentId] || leadInstruments.synth;
+        updateLeadPlayerControls();
+        try {
+          localStorage.setItem(leadInstrumentStorageKey, instrumentId);
+        } catch (error) {
+          // 保存できない環境でも、選んだ楽器はその場で使えるようにする。
+        }
+        if (shouldPreview) playLeadPad(selectedRoot.midi + 12);
+      }
+
+      function loadLeadPlayerPreference() {
+        try {
+          const savedInstrument = localStorage.getItem(leadInstrumentStorageKey) || "synth";
+          const savedVolume = localStorage.getItem(leadVolumeStorageKey);
+          if (savedVolume !== null) leadVolume.value = String(Math.min(100, Math.max(0, Number(savedVolume) || 0)));
+          setLeadInstrument(savedInstrument);
+        } catch (error) {
+          setLeadInstrument("synth");
+        }
+        updateLeadPlayerControls();
       }
 
       function runSequenceStep() {
@@ -966,6 +1055,21 @@
           const button = event.target.closest("[data-lead]");
           if (!button) return;
           playLeadPad(Number(button.dataset.lead));
+        });
+
+        leadInstrumentGrid.addEventListener("click", (event) => {
+          const button = event.target.closest("[data-lead-instrument]");
+          if (!button) return;
+          setLeadInstrument(button.dataset.leadInstrument, true);
+        });
+
+        leadVolume.addEventListener("input", () => {
+          updateLeadPlayerControls();
+          try {
+            localStorage.setItem(leadVolumeStorageKey, leadVolume.value);
+          } catch (error) {
+            // 音量保存が使えない場合もスライダー自体はその場で効く。
+          }
         });
 
         roleGrid.addEventListener("click", (event) => {
@@ -1260,6 +1364,7 @@
       buildControls();
       setupVoiceInput();
       loadDeviceSoundPreference();
+      loadLeadPlayerPreference();
       render();
       loadRolePreference();
       window.setTimeout(revealToneQuest, toneQuestDelay);

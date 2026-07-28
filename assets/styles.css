@@ -1142,9 +1142,48 @@ time {
   max-width: 360px;
 }
 
-.lead-filter-panel {
-  grid-template-columns: minmax(190px, 0.7fr) repeat(2, minmax(160px, 1fr));
+.lead-player-panel {
+  grid-template-columns: minmax(170px, 0.55fr) minmax(320px, 1.25fr) minmax(220px, 0.8fr);
   align-items: end;
+}
+
+.lead-instrument-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.lead-instrument-grid button {
+  min-height: 86px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.lead-instrument-grid button.is-active {
+  border-color: var(--teal);
+  background: var(--soft-blue);
+  box-shadow: inset 0 0 0 2px rgba(35, 107, 100, 0.18);
+}
+
+.lead-instrument-grid strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 20px;
+}
+
+.lead-instrument-grid small {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.lead-volume-row b {
+  color: var(--teal);
+  font-size: 14px;
 }
 
 .control-group {
@@ -2659,7 +2698,7 @@ time {
   .tone-lab,
   .entrance-hero,
   .ensemble-panel,
-  .lead-filter-panel,
+  .lead-player-panel,
   .control-band,
   .tone-control-band,
   .settings-hero,
@@ -3057,6 +3096,10 @@ time {
     width: min(100%, 362px);
     margin-right: auto;
     margin-left: auto;
+  }
+
+  .lead-instrument-grid {
+    grid-template-columns: 1fr;
   }
 
   .sequence-row {
